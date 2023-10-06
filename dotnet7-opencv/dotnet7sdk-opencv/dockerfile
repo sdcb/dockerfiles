@@ -1,0 +1,4 @@
+FROM sdflysha/dotnet7-opencv:4.8.0-ubuntu22 as builder
+
+FROM mcr.microsoft.com/dotnet/sdk:7.0-jammy as final
+COPY --from=builder /usr/lib /usr/lib
