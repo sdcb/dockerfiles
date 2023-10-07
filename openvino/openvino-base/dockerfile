@@ -1,0 +1,2 @@
+FROM sdflysha/dotnet7sdk-opencv:4.8.0-ubuntu22 as builder
+RUN wget https://raw.githubusercontent.com/openvinotoolkit/openvino/releases/2023/1/install_build_dependencies.sh && chmod +x ./install_build_dependencies.sh && ./install_build_dependencies.sh && rm install_build_dependencies.sh
