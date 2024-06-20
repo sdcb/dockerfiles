@@ -28,22 +28,22 @@ function TagAndPushDockerImages {
     $date = Get-Date -Format "yyyyMMdd"
 
     # Tagging for Alibaba Cloud
-    docker tag $imageName $aliyunRegistry/$aliyunNamespace/$imageName
-    docker tag $imageName $aliyunRegistry/$aliyunNamespace/$imageName:$date
-    docker tag $imageName $aliyunRegistry/$aliyunNamespace/$imageName:r-$runId
+    docker tag $imageName "$aliyunRegistry/$aliyunNamespace/$imageName"
+    docker tag $imageName "$aliyunRegistry/$aliyunNamespace/$imageName:$date"
+    docker tag $imageName "$aliyunRegistry/$aliyunNamespace/$imageName:r-$runId"
 
     # Tagging for Docker Hub
-    docker tag $imageName $dockerUsername/$imageName
-    docker tag $imageName $dockerUsername/$imageName:$date
-    docker tag $imageName $dockerUsername/$imageName:r-$runId
+    docker tag $imageName "$dockerUsername/$imageName"
+    docker tag $imageName "$dockerUsername/$imageName:$date"
+    docker tag $imageName "$dockerUsername/$imageName:r-$runId"
 
     # Pushing to Alibaba Cloud
-    docker push $aliyunRegistry/$aliyunNamespace/$imageName
-    docker push $aliyunRegistry/$aliyunNamespace/$imageName:$date
-    docker push $aliyunRegistry/$aliyunNamespace/$imageName:r-$runId
+    docker push "$aliyunRegistry/$aliyunNamespace/$imageName"
+    docker push "$aliyunRegistry/$aliyunNamespace/$imageName:$date"
+    docker push "$aliyunRegistry/$aliyunNamespace/$imageName:r-$runId"
 
     # Pushing to Docker Hub
-    docker push $dockerUsername/$imageName
-    docker push $dockerUsername/$imageName:$date
-    docker push $dockerUsername/$imageName:r-$runId
+    docker push "$dockerUsername/$imageName"
+    docker push "$dockerUsername/$imageName:$date"
+    docker push "$dockerUsername/$imageName:r-$runId"
 }
