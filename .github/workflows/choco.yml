@@ -2,7 +2,6 @@ name: choco
 on:
   schedule:
     - cron: "0 5 1 * *" # 5:00 on the first day of each month
-      timezone: "Asia/Shanghai"
   workflow_dispatch:
 
 jobs:
@@ -26,5 +25,5 @@ jobs:
       - name: Tag and Push Docker images
         run: |
           . .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "choco" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
+          TagAndPushDockerImages -imageName "choco" -githubRepository "${{ github.repository }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
         shell: pwsh

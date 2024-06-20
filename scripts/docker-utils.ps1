@@ -17,6 +17,7 @@ function Login-DockerRegistries {
 function TagAndPushDockerImages {
     param(
         [string]$imageName,
+        [string]$githubRepository,
         [string]$aliyunRegistry,
         [string]$aliyunNamespace,
         [string]$dockerUsername,
@@ -34,6 +35,16 @@ function TagAndPushDockerImages {
     docker tag $imageName "${dockerUsername}/${imageName}"
     docker tag $imageName "${dockerUsername}/${imageName}:$date"
     docker tag $imageName "${dockerUsername}/${imageName}:r-$runId"
+
+    # Script block for pushing to ghcr.io
+    $githubPush = {
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        docker push "ghcr.io/${using:githubRepository}/${using:imageName}:r-${using:runId}"
+        docker push "ghcr.io/${using:githubRepository}/${using:imageName}:${using:date}"
+        docker push "ghcr.io/${using:githubRepository}/${using:imageName}"
+        $sw.Stop()
+        Write-Output "Time taken to push to GitHub Container Registry: $($sw.Elapsed.TotalSeconds) seconds"
+    }
 
     # Script block for pushing to Alibaba Cloud
     $aliyunPush = {
@@ -55,18 +66,28 @@ function TagAndPushDockerImages {
         Write-Output "Time taken to push to Docker Hub: $($sw.Elapsed.TotalSeconds) seconds"
     }
 
-    # Start jobs for Alibaba Cloud and Docker Hub
-    Write-Output "Pushing to Alibaba Cloud..."
-    $jobAliyun = Start-Job -ScriptBlock $aliyunPush
-    $jobDockerHub = Start-Job -ScriptBlock $dockerHubPush
+    $selectedPushes = @($githubPush, $dockerHubPush) # removed $aliyunPush because too slow
+    Write-Output "Pushing to Registries..."
 
-    # Wait for all jobs to complete
-    Write-Output "Pushing to Docker Hub..."
-    Wait-Job $jobAliyun, $jobDockerHub
+    # Parallel execution of push operations
+    $jobs = @()
+    foreach ($push in $selectedPushes) {
+        $jobs += Start-Job -ScriptBlock $push
+    }
 
-    # Output results and clean up jobs
-    Receive-Job $jobAliyun
-    Receive-Job $jobDockerHub
-    Remove-Job $jobAliyun
-    Remove-Job $jobDockerHub
+    # Wait for all jobs to complete and stream their output
+    $jobs | ForEach-Object {
+        # Continuously check job status and fetch output
+        while ($_.State -eq 'Running') {
+            # Receive available output without removing it from the job
+            $_ | Receive-Job -Keep
+            Start-Sleep -Seconds 1
+        }
+    
+        # Receive any remaining output once the job is completed
+        $_ | Receive-Job
+        Remove-Job $_
+    }
+
+    Write-Output "All pushes completed."
 }

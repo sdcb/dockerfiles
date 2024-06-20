@@ -25,7 +25,7 @@ jobs:
       - name: Tag and Push Docker images
         run: |
           . .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "msvc2017" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
+          TagAndPushDockerImages -imageName "msvc2017" -githubRepository "${{ github.repository }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
         shell: pwsh
 
   msvc2019:
@@ -48,7 +48,7 @@ jobs:
       - name: Tag and Push Docker images
         run: |
           . .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "msvc2019" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
+          TagAndPushDockerImages -imageName "msvc2019" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -githubRepository "${{ github.repository }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
         shell: pwsh
 
   msvc2022:
@@ -71,5 +71,5 @@ jobs:
       - name: Tag and Push Docker images
         run: |
           . .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "msvc2022" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
+          TagAndPushDockerImages -imageName "msvc2022" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -githubRepository "${{ github.repository }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
         shell: pwsh
