@@ -5,26 +5,26 @@ on:
       timezone: "Asia/Shanghai"
     workflow_dispatch:
 
-  jobs:
-    choco:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+jobs:
+  choco:
+  runs-on: windows-latest
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - name: Login to Docker registries
-        run: |
-          . .\scripts\docker-utils.ps1
-          Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
-        shell: pwsh
+    - name: Login to Docker registries
+      run: |
+        . .\scripts\docker-utils.ps1
+        Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
+      shell: pwsh
 
-      - name: Build
-        run: |
-          cd ./src/choco
-          docker build -t choco .
-      
-      - name: Tag and Push Docker images
-        run: |
-          . .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "choco" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
-        shell: pwsh
+    - name: Build
+      run: |
+        cd ./src/choco
+        docker build -t choco .
+    
+    - name: Tag and Push Docker images
+      run: |
+        . .\scripts\docker-utils.ps1
+        TagAndPushDockerImages -imageName "choco" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
+      shell: pwsh
