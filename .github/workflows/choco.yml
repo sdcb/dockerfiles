@@ -1,7 +1,6 @@
 name: choco
 on:
   schedule:
-    # 5:00 on the first day of each month
     - cron: "0 5 1 * *"
       timezone: "Asia/Shanghai"
     workflow_dispatch:
