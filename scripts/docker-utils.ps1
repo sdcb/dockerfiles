@@ -26,15 +26,20 @@ function TagAndPushDockerImages {
 
     $date = Get-Date -Format "yyyyMMdd"
 
+    # Tagging for GitHub Container Registry
+    docker tag $imageName "ghcr.io/${githubRepository}/${imageName}:r-$runId"
+    docker tag $imageName "ghcr.io/${githubRepository}/${imageName}:$date"
+    docker tag $imageName "ghcr.io/${githubRepository}/${imageName}"
+
     # Tagging for Alibaba Cloud
-    docker tag $imageName "${aliyunRegistry}/${aliyunNamespace}/${imageName}"
-    docker tag $imageName "${aliyunRegistry}/${aliyunNamespace}/${imageName}:$date"
     docker tag $imageName "${aliyunRegistry}/${aliyunNamespace}/${imageName}:r-$runId"
+    docker tag $imageName "${aliyunRegistry}/${aliyunNamespace}/${imageName}:$date"
+    docker tag $imageName "${aliyunRegistry}/${aliyunNamespace}/${imageName}"
 
     # Tagging for Docker Hub
-    docker tag $imageName "${dockerUsername}/${imageName}"
-    docker tag $imageName "${dockerUsername}/${imageName}:$date"
     docker tag $imageName "${dockerUsername}/${imageName}:r-$runId"
+    docker tag $imageName "${dockerUsername}/${imageName}:$date"
+    docker tag $imageName "${dockerUsername}/${imageName}"
 
     # Script block for pushing to ghcr.io
     $githubPush = {
