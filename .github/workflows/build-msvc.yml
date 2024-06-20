@@ -21,12 +21,12 @@ jobs:
       - name: Build
         run: |
           cd ./src/msvc/msvc2017
-          docker build -t msvc:2017 .
+          docker build -t msvc2017 .
       
       - name: Tag and Push Docker images
         run: |
           .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "msvc:2017" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId "${{ github.run_id }}"
+          TagAndPushDockerImages -imageName "msvc2017" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId "${{ github.run_id }}"
         shell: pwsh
 
   msvc2019:
@@ -44,12 +44,12 @@ jobs:
       - name: Build
         run: |
           cd ./src/msvc/msvc2019
-          docker build -t msvc:2019 .
+          docker build -t msvc2019 .
       
       - name: Tag and Push Docker images
         run: |
           .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "msvc:2019" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId "${{ github.run_id }}"
+          TagAndPushDockerImages -imageName "msvc2019" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId "${{ github.run_id }}"
         shell: pwsh
 
   msvc2022:
@@ -67,10 +67,10 @@ jobs:
       - name: Build
         run: |
           cd ./src/msvc/msvc2022
-          docker build -t msvc:2022 .
+          docker build -t msvc2022 .
       
       - name: Tag and Push Docker images
         run: |
           .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "msvc:2022" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId "${{ github.run_id }}"
+          TagAndPushDockerImages -imageName "msvc2022" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId "${{ github.run_id }}"
         shell: pwsh
