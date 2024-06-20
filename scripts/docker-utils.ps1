@@ -23,8 +23,6 @@ function TagAndPushDockerImages {
         [int]$runId
     )
 
-    Write-Output "Registry: $aliyunRegistry, Namespace: $aliyunNamespace, Docker Username: $dockerUsername"
-
     $date = Get-Date -Format "yyyyMMdd"
 
     # Tagging for Alibaba Cloud
@@ -40,18 +38,20 @@ function TagAndPushDockerImages {
     # Script block for pushing to Alibaba Cloud
     $aliyunPush = {
         $sw = [System.Diagnostics.Stopwatch]::StartNew()
-        docker push "${aliyunRegistry}/${aliyunNamespace}/${imageName}"
-        docker push "${aliyunRegistry}/${aliyunNamespace}/${imageName}:$date"
-        docker push "${aliyunRegistry}/${aliyunNamespace}/${imageName}:r-$runId"
+        docker push "${using:aliyunRegistry}/${using:aliyunNamespace}/${using:imageName}"
+        docker push "${using:aliyunRegistry}/${using:aliyunNamespace}/${using:imageName}:${using:date}"
+        docker push "${using:aliyunRegistry}/${using:aliyunNamespace}/${using:imageName}:r-${using:runId}"
+        $sw.Stop()
         Write-Output "Time taken to push to Alibaba Cloud: $($sw.Elapsed.TotalSeconds) seconds"
     }
 
     # Script block for pushing to Docker Hub
     $dockerHubPush = {
         $sw = [System.Diagnostics.Stopwatch]::StartNew()
-        docker push "${dockerUsername}/${imageName}"
-        docker push "${dockerUsername}/${imageName}:$date"
-        docker push "${dockerUsername}/${imageName}:r-$runId"
+        docker push "${using:dockerUsername}/${using:imageName}"
+        docker push "${using:dockerUsername}/${using:imageName}:${using:date}"
+        docker push "${using:dockerUsername}/${using:imageName}:r-${using:runId}"
+        $sw.Stop()
         Write-Output "Time taken to push to Docker Hub: $($sw.Elapsed.TotalSeconds) seconds"
     }
 
