@@ -37,13 +37,36 @@ function TagAndPushDockerImages {
     docker tag $imageName "${dockerUsername}/${imageName}:$date"
     docker tag $imageName "${dockerUsername}/${imageName}:r-$runId"
 
-    # Pushing to Alibaba Cloud
-    docker push "${aliyunRegistry}/${aliyunNamespace}/${imageName}"
-    docker push "${aliyunRegistry}/${aliyunNamespace}/${imageName}:$date"
-    docker push "${aliyunRegistry}/${aliyunNamespace}/${imageName}:r-$runId"
+    # Script block for pushing to Alibaba Cloud
+    $aliyunPush = {
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        docker push "${aliyunRegistry}/${aliyunNamespace}/${imageName}"
+        docker push "${aliyunRegistry}/${aliyunNamespace}/${imageName}:$date"
+        docker push "${aliyunRegistry}/${aliyunNamespace}/${imageName}:r-$runId"
+        Write-Output "Time taken to push to Alibaba Cloud: $($sw.Elapsed.TotalSeconds) seconds"
+    }
 
-    # Pushing to Docker Hub
-    docker push "${dockerUsername}/${imageName}"
-    docker push "${dockerUsername}/${imageName}:$date"
-    docker push "${dockerUsername}/${imageName}:r-$runId"
+    # Script block for pushing to Docker Hub
+    $dockerHubPush = {
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        docker push "${dockerUsername}/${imageName}"
+        docker push "${dockerUsername}/${imageName}:$date"
+        docker push "${dockerUsername}/${imageName}:r-$runId"
+        Write-Output "Time taken to push to Docker Hub: $($sw.Elapsed.TotalSeconds) seconds"
+    }
+
+    # Start jobs for Alibaba Cloud and Docker Hub
+    Write-Output "Pushing to Alibaba Cloud..."
+    $jobAliyun = Start-Job -ScriptBlock $aliyunPush
+    $jobDockerHub = Start-Job -ScriptBlock $dockerHubPush
+
+    # Wait for all jobs to complete
+    Write-Output "Pushing to Docker Hub..."
+    Wait-Job $jobAliyun, $jobDockerHub
+
+    # Output results and clean up jobs
+    Receive-Job $jobAliyun
+    Receive-Job $jobDockerHub
+    Remove-Job $jobAliyun
+    Remove-Job $jobDockerHub
 }
