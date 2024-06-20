@@ -1,0 +1,29 @@
+name: build-msvc-containers
+on:
+  schedule:
+    - cron: "0 16 * * 0"
+      timezone: "Asia/Shanghai"
+  workflow_dispatch:
+
+jobs:
+  msvc2017:
+    runs-on: windows-latest
+    steps:
+      - name: Login aliyun container
+        run: echo ${{ secrets.ALIYUN_DOCKER_PASSWORD }} | docker login -u ${{ secrets.ALIYUN_DOCKER_USERNAME }} ${{ secrets.ALIYUN_DOCKER_REGISTRY }} --password-stdin
+      
+      - name: Login docker hub
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build
+        run: |
+          cd ./src/msvc/msvc2017
+          docker build -t msvc:2017 .
+      
+      - name: Tag and Push Docker images
+        run: |
+          .\tag-and-push.ps1 -imageName "msvc:2017" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId "${{ github.run_id }}"
+        shell: pwsh
