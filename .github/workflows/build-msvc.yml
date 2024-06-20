@@ -29,48 +29,48 @@ jobs:
           TagAndPushDockerImages -imageName "msvc2017" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
         shell: pwsh
 
-  msvc2019:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  # msvc2019:
+  #   runs-on: windows-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Login to Docker registries
-        run: |
-          . .\scripts\docker-utils.ps1
-          Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
-        shell: pwsh
+  #     - name: Login to Docker registries
+  #       run: |
+  #         . .\scripts\docker-utils.ps1
+  #         Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
+  #       shell: pwsh
 
-      - name: Build
-        run: |
-          cd ./src/msvc/msvc2019
-          docker build -t msvc2019 .
+  #     - name: Build
+  #       run: |
+  #         cd ./src/msvc/msvc2019
+  #         docker build -t msvc2019 .
       
-      - name: Tag and Push Docker images
-        run: |
-          .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "msvc2019" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
-        shell: pwsh
+  #     - name: Tag and Push Docker images
+  #       run: |
+  #         .\scripts\docker-utils.ps1
+  #         TagAndPushDockerImages -imageName "msvc2019" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
+  #       shell: pwsh
 
-  msvc2022:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  # msvc2022:
+  #   runs-on: windows-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Login to Docker registries
-        run: |
-          . .\scripts\docker-utils.ps1
-          Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
-        shell: pwsh
+  #     - name: Login to Docker registries
+  #       run: |
+  #         . .\scripts\docker-utils.ps1
+  #         Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
+  #       shell: pwsh
 
-      - name: Build
-        run: |
-          cd ./src/msvc/msvc2022
-          docker build -t msvc2022 .
+  #     - name: Build
+  #       run: |
+  #         cd ./src/msvc/msvc2022
+  #         docker build -t msvc2022 .
       
-      - name: Tag and Push Docker images
-        run: |
-          . .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "msvc2022" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
-        shell: pwsh
+  #     - name: Tag and Push Docker images
+  #       run: |
+  #         . .\scripts\docker-utils.ps1
+  #         TagAndPushDockerImages -imageName "msvc2022" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
+  #       shell: pwsh

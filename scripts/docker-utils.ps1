@@ -23,6 +23,8 @@ function TagAndPushDockerImages {
         [int]$runId
     )
 
+    Write-Output "Registry: $aliyunRegistry, Namespace: $aliyunNamespace, Docker Username: $dockerUsername"
+
     $date = Get-Date -Format "yyyyMMdd"
 
     # Tagging for Alibaba Cloud
