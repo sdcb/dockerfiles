@@ -47,7 +47,7 @@ jobs:
       
       - name: Tag and Push Docker images
         run: |
-          .\scripts\docker-utils.ps1
+          . .\scripts\docker-utils.ps1
           TagAndPushDockerImages -imageName "msvc2019" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
         shell: pwsh
 
