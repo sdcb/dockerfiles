@@ -9,11 +9,11 @@ jobs:
   msvc2017:
     runs-on: windows-latest
     steps:
-      - name: Login aliyun container
-        run: echo ${{ secrets.ALIYUN_DOCKER_PASSWORD }} | docker login -u ${{ secrets.ALIYUN_DOCKER_USERNAME }} ${{ secrets.ALIYUN_DOCKER_REGISTRY }} --password-stdin
-      
-      - name: Login docker hub
-        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Login to Docker registries
+        run: |
+          .\scripts\docker-utils.ps1
+          Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
+        shell: pwsh
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -25,5 +25,6 @@ jobs:
       
       - name: Tag and Push Docker images
         run: |
-          .\tag-and-push.ps1 -imageName "msvc:2017" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId "${{ github.run_id }}"
+          .\docker-utils.ps1
+          TagAndPushDockerImages -imageName "msvc:2017" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId "${{ github.run_id }}"
         shell: pwsh
