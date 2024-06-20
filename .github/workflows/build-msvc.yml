@@ -9,14 +9,14 @@ jobs:
   msvc2017:
     runs-on: windows-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Login to Docker registries
         run: |
           .\scripts\docker-utils.ps1
           Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
         shell: pwsh
-
-      - name: Checkout
-        uses: actions/checkout@v3
 
       - name: Build
         run: |
@@ -32,14 +32,14 @@ jobs:
   msvc2019:
     runs-on: windows-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Login to Docker registries
         run: |
           .\scripts\docker-utils.ps1
           Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
         shell: pwsh
-
-      - name: Checkout
-        uses: actions/checkout@v3
 
       - name: Build
         run: |
@@ -55,14 +55,14 @@ jobs:
   msvc2022:
     runs-on: windows-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Login to Docker registries
         run: |
           .\scripts\docker-utils.ps1
           Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
         shell: pwsh
-
-      - name: Checkout
-        uses: actions/checkout@v3
 
       - name: Build
         run: |
