@@ -14,7 +14,7 @@ jobs:
       - name: Login to Docker registries
         run: |
           . .\scripts\docker-utils.ps1
-          Login-DockerRegistries -aliyunUsername "${{ secrets.ALIYUN_DOCKER_USERNAME }}" -aliyunPassword "${{ secrets.ALIYUN_DOCKER_PASSWORD }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerPassword "${{ secrets.DOCKER_PASSWORD }}"
+          Login-DockerRegistries -aliyunUsername -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -dockerToken "${{ secrets.DOCKER_PASSWORD }}" -githubOwner "${{ github.repository_owner }}" -githubToken "${{ secrets.GITHUB_TOKEN }}"
         shell: pwsh
 
       - name: Build
@@ -25,5 +25,5 @@ jobs:
       - name: Tag and Push Docker images
         run: |
           . .\scripts\docker-utils.ps1
-          TagAndPushDockerImages -imageName "choco" -githubRepository "${{ github.repository }}" -aliyunRegistry "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" -aliyunNamespace "${{ secrets.ALIYUN_DOCKER_NAMESPACE }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
+          TagAndPushDockerImages -imageName "choco" -githubRepository "${{ github.repository }}" -dockerUsername "${{ secrets.DOCKER_USERNAME }}" -runId ${{ github.run_number }}
         shell: pwsh
