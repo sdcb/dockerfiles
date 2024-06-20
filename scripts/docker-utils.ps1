@@ -36,17 +36,17 @@ function TagAndPushDockerImages {
     # pushing to ghcr.io
     Write-Host "Pushing to GitHub Container Registry..."
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
-    docker push "ghcr.io/${using:githubRepository}/${using:imageName}:r-${using:runId}"
-    docker push "ghcr.io/${using:githubRepository}/${using:imageName}:${using:date}"
-    docker push "ghcr.io/${using:githubRepository}/${using:imageName}"
+    docker push "ghcr.io/${githubRepository}/${imageName}:r-${runId}"
+    docker push "ghcr.io/${githubRepository}/${imageName}:${date}"
+    docker push "ghcr.io/${githubRepository}/${imageName}"
     $sw.Stop()
     Write-Output "Time taken to push to GitHub Container Registry: $($sw.Elapsed.TotalSeconds) seconds"
 
     # pushing to Docker Hub
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
-    docker push "${using:dockerUsername}/${using:imageName}:r-${using:runId}"
-    docker push "${using:dockerUsername}/${using:imageName}:${using:date}"
-    docker push "${using:dockerUsername}/${using:imageName}"
+    docker push "${dockerUsername}/${imageName}:r-${runId}"
+    docker push "${dockerUsername}/${imageName}:${date}"
+    docker push "${dockerUsername}/${imageName}"
     $sw.Stop()
     Write-Output "Time taken to push to Docker Hub: $($sw.Elapsed.TotalSeconds) seconds"
 
