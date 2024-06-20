@@ -1,4 +1,4 @@
-name: build-msvc-containers
+name: msvc
 on:
   schedule:
     - cron: "0 16 * * 0"
