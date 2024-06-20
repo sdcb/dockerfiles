@@ -2,7 +2,6 @@ name: msvc
 on:
   schedule:
     - cron: "0 16 * * 0"
-      timezone: "Asia/Shanghai"
   workflow_dispatch:
 
 jobs:
