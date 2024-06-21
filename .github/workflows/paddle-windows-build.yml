@@ -1,0 +1,27 @@
+name: paddle-windows-build
+on:
+  workflow_dispatch:
+    inputs:
+      paddle_version:
+        description: 'Paddle version'
+        required: true
+        default: '2.6.1'
+
+jobs:
+  openblas-noavx:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          cd ./src/paddle-windows-build
+          docker build -e PADDLE_VERSION=${{ inputs.paddle_version }} -t build . -f openblas-noavx.dockerfile
+      
+      - name: copy artifacts
+        run: |
+          docker create --name build build
+          docker cp build:C:\Paddle\Build\build.zip .
+          docker rm build
+    
