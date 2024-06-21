@@ -17,7 +17,7 @@ jobs:
       - name: Build
         run: |
           cd ./src/paddle-windows-build
-          docker build --build-arg PADDLE_VERSION=${{ inputs.paddle_version }} -t build . -f openblas-noavx.dockerfile
+          docker build --build-arg PADDLE_VERSION="${{ inputs.paddle_version }}" -t build . -f openblas-noavx.dockerfile
       
       - name: copy artifacts
         run: |
