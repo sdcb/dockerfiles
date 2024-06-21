@@ -1,10 +1,12 @@
 # escape=`
 
-FROM sdflysha/msvc2019:latest
+FROM ghcr.io/sdcb/dockerfiles/msvc2019:latest
 
 ARG PADDLE_VERSION
 
-RUN git clone --depth 1 -b release/$PADDLE_VERSION https://github.com/PaddlePaddle/Paddle C:\Paddle && `
+RUN echo "Paddle version is: ${PADDLE_VERSION}"
+
+RUN git clone --depth 1 -b release/${PADDLE_VERSION} https://github.com/PaddlePaddle/Paddle C:\Paddle && `
     cd C:\Paddle && `
     mkdir Build && `
     cd Build && `
