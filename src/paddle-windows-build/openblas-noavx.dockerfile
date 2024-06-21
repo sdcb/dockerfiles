@@ -1,6 +1,6 @@
 FROM sdflysha/msvc2019:latest
 
-ENV PADDLE_VERSION=2.6.1
+ARG PADDLE_VERSION
 
 RUN git clone --depth 1 -b release/$PADDLE_VERSION https://github.com/PaddlePaddle/Paddle C:\Paddle && `
     cd C:\Paddle && `
