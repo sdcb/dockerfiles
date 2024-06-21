@@ -33,6 +33,14 @@ function TagAndPushDockerImages {
     docker tag $imageName "${dockerUsername}/${imageName}:$date"
     docker tag $imageName "${dockerUsername}/${imageName}"
 
+    # pushing to Docker Hub
+    $sw = [System.Diagnostics.Stopwatch]::StartNew()
+    docker push "${dockerUsername}/${imageName}:r-${runId}"
+    docker push "${dockerUsername}/${imageName}:${date}"
+    docker push "${dockerUsername}/${imageName}"
+    $sw.Stop()
+    Write-Output "Time taken to push to Docker Hub: $($sw.Elapsed.TotalSeconds) seconds"
+
     # pushing to ghcr.io
     Write-Host "Pushing to GitHub Container Registry..."
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
@@ -41,14 +49,6 @@ function TagAndPushDockerImages {
     docker push "ghcr.io/${githubRepository}/${imageName}"
     $sw.Stop()
     Write-Output "Time taken to push to GitHub Container Registry: $($sw.Elapsed.TotalSeconds) seconds"
-
-    # pushing to Docker Hub
-    $sw = [System.Diagnostics.Stopwatch]::StartNew()
-    docker push "${dockerUsername}/${imageName}:r-${runId}"
-    docker push "${dockerUsername}/${imageName}:${date}"
-    docker push "${dockerUsername}/${imageName}"
-    $sw.Stop()
-    Write-Output "Time taken to push to Docker Hub: $($sw.Elapsed.TotalSeconds) seconds"
 
     Write-Output "All pushes completed."
 }
