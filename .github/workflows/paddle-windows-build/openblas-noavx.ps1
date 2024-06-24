@@ -6,5 +6,6 @@ cd C:\Paddle\Build
 cmake .. -GNinja -DWITH_AVX=OFF -DWITH_MKL=OFF -DWITH_GPU=OFF -DON_INFER=ON -DWITH_PYTHON=OFF -DWITH_ONNXRUNTIME=ON -DWITH_UNITY_BUILD=ON
 ninja all
 
-Compress-Archive -Path C:\Paddle\Build\paddle_inference_c_install_dir, C:\Paddle\Build\paddle_inference_install_dir -DestinationPath C:\Paddle\Build\build.zip
+Compress-Archive -Path C:\Paddle\Build\paddle_inference_c_install_dir\* -DestinationPath C:\Paddle\Build\c.zip
+Compress-Archive -Path C:\Paddle\Build\paddle_inference_install_dir\* -DestinationPath C:\Paddle\Build\cpp.zip
 ls C:\Paddle\Build
