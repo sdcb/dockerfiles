@@ -1,4 +1,3 @@
-choco install ninja -y
 Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
 git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle C:\Paddle
 mkdir C:\Paddle\Build
