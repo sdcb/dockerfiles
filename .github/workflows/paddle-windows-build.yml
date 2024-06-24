@@ -17,7 +17,7 @@ jobs:
       - name: Build
         run: |
           cd ./.github/workflows/paddle-windows-build
-          docker run -it -e PADDLE_VERSION=2.6 -v ${PWD}\paddle-windows-build:C:\scripts --name build sdflysha/msvc2019:latest C:\scripts\openblas-noavx.ps1
+          docker run -it -e PADDLE_VERSION=2.6.1 -e PADDLE_BRANCH=release/2.6 -v ${PWD}\paddle-windows-build:C:\scripts --name build sdflysha/msvc2019:latest C:\scripts\openblas-noavx.ps1
       
       - name: copy artifacts
         run: |
@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: |
           cd ./.github/workflows/paddle-windows-build
-          docker run -it -e PADDLE_VERSION=2.6 -v ${PWD}\paddle-windows-build:C:\scripts --name build sdflysha/msvc2019:latest C:\scripts\openblas.ps1
+          docker run -it -e PADDLE_VERSION=2.6.1 -e PADDLE_BRANCH=release/2.6 -v ${PWD}\paddle-windows-build:C:\scripts --name build sdflysha/msvc2019:latest C:\scripts\openblas.ps1
       
       - name: copy artifacts
         run: |
@@ -51,7 +51,7 @@ jobs:
       - name: Build
         run: |
           cd ./.github/workflows/paddle-windows-build
-          docker run -it -e PADDLE_VERSION=2.6 -v ${PWD}\paddle-windows-build:C:\scripts --name build sdflysha/msvc2019:latest C:\scripts\mkldnn.ps1
+          docker run -it -e PADDLE_VERSION=2.6.1 -e PADDLE_BRANCH=release/2.6 -v ${PWD}\paddle-windows-build:C:\scripts --name build sdflysha/msvc2019:latest C:\scripts\mkldnn.ps1
       
       - name: copy artifacts
         run: |
