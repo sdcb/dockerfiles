@@ -1,0 +1,6 @@
+FROM sdflysha/msvc2019
+COPY cu120 C:/cu120
+RUN SETX /M CUDA_TOOLKIT_ROOT_DIR "C:\\cu120"
+RUN SETX /M PATH "%PATH%; %CUDA_TOOLKIT_ROOT_DIR%\\bin; %CUDA_TOOLKIT_ROOT_DIR%\\libnvvp"
+RUN SETX /M CUDA_PATH %CUDA_TOOLKIT_ROOT_DIR%
+ENTRYPOINT ["C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Auxiliary\\Build\\vcvars64.bat", "&&", "powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]
