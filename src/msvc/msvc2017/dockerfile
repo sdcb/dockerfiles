@@ -5,6 +5,7 @@ RUN choco install git.install -y --no-progress
 RUN choco install cmake -y --no-progress --installargs '"ADD_CMAKE_TO_PATH=System"'
 RUN choco install python -y --no-progress
 RUN choco install visualstudio2017-workload-vctools -y --no-progress
+RUN python -m pip install setuptools
 RUN git clone https://github.com/microsoft/vcpkg.git C:\vcpkg `
     && cd vcpkg `
     && bootstrap-vcpkg.bat `
