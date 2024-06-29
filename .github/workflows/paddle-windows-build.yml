@@ -93,3 +93,20 @@ jobs:
           docker cp build:C:\Paddle\Build\build.zip .
           docker rm build
     
+  cu120-sm80:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          cd ./.github/workflows/paddle-windows-build
+          docker run -it -e PADDLE_VERSION=2.6.1 -e PADDLE_BRANCH=release/2.6 -v ${PWD}\paddle-windows-build:C:\scripts --name build sdflysha/msvc2019-cu120:latest C:\scripts\cu120-sm80.ps1
+      
+      - name: copy artifacts
+        run: |
+          docker create --name build build
+          docker cp build:C:\Paddle\Build\build.zip .
+          docker rm build
+    
