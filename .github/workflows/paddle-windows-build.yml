@@ -14,9 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Ninja
+      - name: setup deps
         run: |
-          choco install ninja --confirm
+          pip3 install numpy protobuf wheel ninja
 
       - name: run
         run: |
