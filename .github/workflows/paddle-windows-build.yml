@@ -1,11 +1,6 @@
 name: paddle-windows-build
 on:
   workflow_dispatch:
-    inputs:
-      paddle_version:
-        description: 'Paddle version'
-        required: true
-        default: '2.6.1'
 
 jobs:
   openblas-noavx:
