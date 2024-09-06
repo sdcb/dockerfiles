@@ -27,13 +27,11 @@ jobs:
           mkdir C:\Paddle\Build
           cd C:\Paddle\Build
 
-          cmake .. -GNinja -DWITH_AVX=OFF -DWITH_MKL=OFF -DWITH_GPU=OFF -DON_INFER=ON -DWITH_PYTHON=OFF -DWITH_ONNXRUNTIME=ON -DWITH_UNITY_BUILD=ON
-          ninja all
+          cmake .. -G "Visual Studio 17 2022" -A x64 -DWITH_AVX=OFF -DWITH_MKL=OFF -DWITH_GPU=OFF -DON_INFER=ON -DWITH_PYTHON=OFF -DWITH_ONNXRUNTIME=ON -DWITH_UNITY_BUILD=ON
+          msbuild "Paddle.sln" /p:Configuration=Release /m
 
           cp C:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* C:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
-          Compress-Archive -Path C:\Paddle\Build\paddle_inference_c_install_dir\* -DestinationPath C:\Paddle\Build\c.zip
-          Compress-Archive -Path C:\Paddle\Build\paddle_inference_install_dir\* -DestinationPath C:\Paddle\Build\cpp.zip
-          ls C:\Paddle\Build
+          tree C:\Paddle\Build /f
       
       - name: Upload paddle_inference_c_install_dir artifacts
         uses: actions/upload-artifact@v4
