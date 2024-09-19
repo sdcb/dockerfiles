@@ -9,7 +9,7 @@ on:
 
 jobs:
   openblas-noavx:
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,8 +34,8 @@ jobs:
           cmake --build . --config Release
 
           cp C:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* C:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
-          Compress-Archive -Path C:\Paddle\Build\paddle_inference_c_install_dir\* -DestinationPath C:\Paddle\Build\c.zip
-          Compress-Archive -Path C:\Paddle\Build\paddle_inference_install_dir\* -DestinationPath C:\Paddle\Build\cpp.zip
+          # Compress-Archive -Path C:\Paddle\Build\paddle_inference_c_install_dir\* -DestinationPath C:\Paddle\Build\c.zip
+          # Compress-Archive -Path C:\Paddle\Build\paddle_inference_install_dir\* -DestinationPath C:\Paddle\Build\cpp.zip
           ls C:\Paddle\Build
       
       - name: Upload paddle_inference_c_install_dir artifacts
