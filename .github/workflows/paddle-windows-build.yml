@@ -7,6 +7,10 @@ on:
       - '.github/workflows/paddle-windows-build.yml'
   workflow_dispatch:
 
+env:
+  PADDLE_VERSION: "2.6.1"
+  PADDLE_BRANCH: "release/2.6"
+
 jobs:
   openblas-noavx:
     runs-on: windows-2019
@@ -25,8 +29,6 @@ jobs:
 
       - name: run
         run: |
-          $env:PADDLE_VERSION = "2.6.1"
-          $env:PADDLE_BRANCH = "release/2.6"
           Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
           git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle C:\Paddle
           mkdir C:\Paddle\Build
@@ -36,8 +38,6 @@ jobs:
           ninja all
 
           cp C:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* C:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
-          # Compress-Archive -Path C:\Paddle\Build\paddle_inference_c_install_dir\* -DestinationPath C:\Paddle\Build\c.zip
-          # Compress-Archive -Path C:\Paddle\Build\paddle_inference_install_dir\* -DestinationPath C:\Paddle\Build\cpp.zip
           ls C:\Paddle\Build
       
       - name: Upload paddle_inference_c_install_dir artifacts
@@ -52,39 +52,85 @@ jobs:
           name: paddle_inference_install_dir
           path: C:\Paddle\Build\paddle_inference_install_dir\*
     
-  # openblas:
-  #   runs-on: windows-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+  openblas:
+    runs-on: windows-2019
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     - name: Build
-  #       run: |
-  #         cd ./.github/workflows/paddle-windows-build
-  #         docker run -e PADDLE_VERSION=2.6.1 -e PADDLE_BRANCH=release/2.6 -v ${PWD}\paddle-windows-build:C:\scripts --name build sdflysha/msvc2019:latest C:\scripts\openblas.ps1
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: setup deps
+        run: |
+          pip3 install numpy protobuf wheel ninja
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: run
+        run: |
+          Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
+          git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle C:\Paddle
+          mkdir C:\Paddle\Build
+          cd C:\Paddle\Build
+
+          cmake .. -GNinja -DWITH_AVX=ON -DWITH_MKL=OFF -DWITH_GPU=OFF -DON_INFER=ON -DWITH_PYTHON=OFF -DWITH_ONNXRUNTIME=ON -DWITH_UNITY_BUILD=ON
+          ninja all
+
+          cp C:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* C:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
+          ls C:\Paddle\Build
       
-  #     - name: copy artifacts
-  #       run: |
-  #         docker create --name build build
-  #         docker cp build:C:\Paddle\Build\build.zip .
-  #         docker rm build
+      - name: Upload paddle_inference_c_install_dir artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: paddle_inference_c_install_dir
+          path: C:\Paddle\Build\paddle_inference_c_install_dir\*
+  
+      - name: Upload paddle_inference_install_dir artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: paddle_inference_install_dir
+          path: C:\Paddle\Build\paddle_inference_install_dir\*
     
-  # mkldnn:
-  #   runs-on: windows-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+  mkldnn:
+    runs-on: windows-2019
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     - name: Build
-  #       run: |
-  #         cd ./.github/workflows/paddle-windows-build
-  #         docker run -e PADDLE_VERSION=2.6.1 -e PADDLE_BRANCH=release/2.6 -v ${PWD}\paddle-windows-build:C:\scripts --name build sdflysha/msvc2019:latest C:\scripts\mkldnn.ps1
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: setup deps
+        run: |
+          pip3 install numpy protobuf wheel ninja
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: run
+        run: |
+          Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
+          git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle C:\Paddle
+          mkdir C:\Paddle\Build
+          cd C:\Paddle\Build
+
+          cmake .. -GNinja -DWITH_AVX=ON -DWITH_MKL=ON -DWITH_GPU=OFF -DON_INFER=ON -DWITH_PYTHON=OFF -DWITH_ONNXRUNTIME=ON -DWITH_UNITY_BUILD=ON
+          ninja all
+
+          cp C:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* C:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
+          ls C:\Paddle\Build
       
-  #     - name: copy artifacts
-  #       run: |
-  #         docker create --name build build
-  #         docker cp build:C:\Paddle\Build\build.zip .
-  #         docker rm build
+      - name: Upload paddle_inference_c_install_dir artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: paddle_inference_c_install_dir
+          path: C:\Paddle\Build\paddle_inference_c_install_dir\*
+  
+      - name: Upload paddle_inference_install_dir artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: paddle_inference_install_dir
+          path: C:\Paddle\Build\paddle_inference_install_dir\*
     
   # cu120-sm86-89:
   #   runs-on: windows-latest
