@@ -20,7 +20,6 @@ jobs:
       - name: setup deps
         run: |
           pip3 install numpy protobuf wheel ninja
-          ninja --version
 
       - name: run
         run: |
@@ -31,6 +30,7 @@ jobs:
           mkdir C:\Paddle\Build
           cd C:\Paddle\Build
 
+          & 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat' amd64
           cmake .. -GNinja -DWITH_AVX=OFF -DWITH_MKL=OFF -DWITH_GPU=OFF -DON_INFER=ON -DWITH_PYTHON=OFF -DWITH_ONNXRUNTIME=ON -DWITH_UNITY_BUILD=ON
           ninja all
 
