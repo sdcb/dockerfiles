@@ -43,13 +43,13 @@ jobs:
       - name: Upload paddle_inference_c_install_dir artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: paddle_inference_c_install_dir
+          name: c_openblas_noavx
           path: C:\Paddle\Build\paddle_inference_c_install_dir\*
   
       - name: Upload paddle_inference_install_dir artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: paddle_inference_install_dir
+          name: cpp_openblas_noavx
           path: C:\Paddle\Build\paddle_inference_install_dir\*
     
   openblas:
@@ -83,13 +83,13 @@ jobs:
       - name: Upload paddle_inference_c_install_dir artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: paddle_inference_c_install_dir
+          name: c_openblas
           path: C:\Paddle\Build\paddle_inference_c_install_dir\*
   
       - name: Upload paddle_inference_install_dir artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: paddle_inference_install_dir
+          name: cpp_openblas
           path: C:\Paddle\Build\paddle_inference_install_dir\*
     
   mkldnn:
@@ -123,13 +123,13 @@ jobs:
       - name: Upload paddle_inference_c_install_dir artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: paddle_inference_c_install_dir
+          name: c_mkldnn
           path: C:\Paddle\Build\paddle_inference_c_install_dir\*
   
       - name: Upload paddle_inference_install_dir artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: paddle_inference_install_dir
+          name: cpp_mkldnn
           path: C:\Paddle\Build\paddle_inference_install_dir\*
     
   # cu120-sm86-89:
