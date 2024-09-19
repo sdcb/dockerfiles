@@ -21,6 +21,8 @@ jobs:
         run: |
           pip3 install numpy protobuf wheel ninja
 
+      - uses: ilammy/msvc-dev-cmd@v1
+
       - name: run
         run: |
           $env:PADDLE_VERSION = "2.6.1"
@@ -30,7 +32,6 @@ jobs:
           mkdir C:\Paddle\Build
           cd C:\Paddle\Build
 
-          & 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat' amd64
           cmake .. -GNinja -DWITH_AVX=OFF -DWITH_MKL=OFF -DWITH_GPU=OFF -DON_INFER=ON -DWITH_PYTHON=OFF -DWITH_ONNXRUNTIME=ON -DWITH_UNITY_BUILD=ON
           ninja all
 
