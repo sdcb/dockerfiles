@@ -7,13 +7,9 @@ on:
 
 jobs:
   hello_world_job:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     container:
       image: centos:7
     steps:
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with: 
-          dotnet-version: 8.0.x
-      - name: show dotnet version
-        run: dotnet --info
+      - name: checkout
+        uses: actions/checkout@v3
