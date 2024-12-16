@@ -11,10 +11,7 @@ jobs:
     container:
       image: centos:7
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Print Hello World
+      - name: dotnet version
         run: |
-          echo "Hello World"
-          cat /etc/os-release
+          echo "Hello World!"
+          dotnet --info
