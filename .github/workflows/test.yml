@@ -11,12 +11,7 @@ jobs:
     container:
       image: centos:7
     steps:
-      - name: setup dotnet
-        run: |
-          curl -Lo dotnet.tar.gz https://download.visualstudio.microsoft.com/download/pr/1975ec3e-0be7-460a-af09-2765318cab53/a07859c84a3e8990ccc77fb7efa53b28/dotnet-sdk-8.0.100-rc.2.23502.2-linux-x64.tar.gz
-          mkdir dotnet
-          tar -C dotnet -xf dotnet.tar.gz
-          rm dotnet.tar.gz
-          export DOTNET_ROOT=~/dotnet
-          export PATH=$PATH:~/dotnet
-          dotnet --version
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+      - name: show dotnet version
+        run: dotnet --info
