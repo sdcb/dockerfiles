@@ -15,4 +15,4 @@ jobs:
       - name: Print Hello World
         run: |
           echo "Hello World"
-          cat /etc/os-release/*
+          cat /etc/os-release
