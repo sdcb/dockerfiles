@@ -13,9 +13,9 @@ jobs:
     steps:
       - name: setup dotnet
         run: |
-          sudo rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm
-          sudo yum update 
-          sudo yum install dotnet-sdk-6.0
-          
+          rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm
+          yum update 
+          yum install dotnet-sdk-6.0
+
       - name: Check dotnet version
         run: dotnet --info
