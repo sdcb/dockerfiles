@@ -11,7 +11,11 @@ jobs:
     container:
       image: centos:7
     steps:
-      - name: dotnet version
+      - name: setup dotnet
         run: |
-          echo "Hello World!"
-          dotnet --info
+          sudo rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm
+          sudo yum update 
+          sudo yum install dotnet-sdk-6.0
+          
+      - name: Check dotnet version
+        run: dotnet --info
