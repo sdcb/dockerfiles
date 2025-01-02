@@ -7,8 +7,15 @@ on:
 
 jobs:
   hello_world_job:
-    runs-on: ubuntu-24.04
+    runs-on: windows-latest
     steps:
       - name: info
         run: |
-          echo "CPU 信息：" && lscpu && echo "内存信息：" && free -h
+          # 获取 CPU 型号和频率
+          Get-CimInstance Win32_Processor | Select-Object Name, MaxClockSpeed, NumberOfCores, NumberOfLogicalProcessors
+
+          # 获取内存大小
+          Get-CimInstance Win32_PhysicalMemory | Select-Object Capacity
+
+          # 或以更易读的方式显示总内存大小
+          Write-Host "Total Physical Memory (GB):" ([math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 2))
