@@ -36,8 +36,21 @@ jobs:
                     Format-Volume -FileSystem ReFS -Confirm:$false -Force
           Write-Output $Volume
           Write-Output "DEV_DRIVE=$($Volume.DriveLetter):" >> $env:GITHUB_ENV
-          mkdir $($Volume.DriveLetter)\Paddle
-          cd $($Volume.DriveLetter)
+
+          # Set the environment variable for the dev drive
+          $env:DEV_DRIVE = "$($Volume.DriveLetter):"
+
+          # Verify the drive is mounted and writable
+          try {
+            Set-Content -Path "$env:DEV_DRIVE\test_file.txt" -Value "Dev drive successfully mounted"
+            $TestFileContent = Get-Content -Path "$env:DEV_DRIVE\test_file.txt"
+            Write-Host "Dev drive $env:DEV_DRIVE successfully mounted and writable."
+            Write-Host "Test content: $TestFileContent"
+          } catch {
+            Write-Error "Failed to write to dev drive $env:DEV_DRIVE"
+            Write-Error $_.Exception.Message
+            exit 1
+          }
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
