@@ -42,12 +42,12 @@ jobs:
       - name: Clone Paddle repository
         run: |
           Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
-          git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle C:\Paddle
+          git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle D:\Paddle
 
       - name: Configure with CMake
         run: |
-          mkdir C:\Paddle\Build
-          cd C:\Paddle\Build
+          mkdir D:\Paddle\Build
+          cd D:\Paddle\Build
           cmake .. -GNinja `
             -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} `
             -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} `
@@ -59,25 +59,25 @@ jobs:
 
       - name: Build with Ninja
         run: |
-          cd C:\Paddle\Build
+          cd D:\Paddle\Build
           ninja all
 
       - name: Copy common* files
         run: |
-          cp C:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* C:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
-          ls C:\Paddle\Build
+          cp D:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* D:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
+          ls D:\Paddle\Build
 
       - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
         with:
           name: c_${{ matrix.build_config.name }}
-          path: C:\Paddle\Build\paddle_inference_c_install_dir\*
+          path: D:\Paddle\Build\paddle_inference_c_install_dir\*
 
       - name: Upload paddle_inference_install_dir
         uses: actions/upload-artifact@v4
         with:
           name: cpp_${{ matrix.build_config.name }}
-          path: C:\Paddle\Build\paddle_inference_install_dir\*
+          path: D:\Paddle\Build\paddle_inference_install_dir\*
     
   # cu120-sm86-89:
   #   runs-on: windows-latest
@@ -93,7 +93,7 @@ jobs:
   #     - name: copy artifacts
   #       run: |
   #         docker create --name build build
-  #         docker cp build:C:\Paddle\Build\build.zip .
+  #         docker cp build:D:\Paddle\Build\build.zip .
   #         docker rm build
     
   # cu120-sm61-75:
@@ -110,7 +110,7 @@ jobs:
   #     - name: copy artifacts
   #       run: |
   #         docker create --name build build
-  #         docker cp build:C:\Paddle\Build\build.zip .
+  #         docker cp build:D:\Paddle\Build\build.zip .
   #         docker rm build
     
   # cu120-sm80:
@@ -127,6 +127,6 @@ jobs:
   #     - name: copy artifacts
   #       run: |
   #         docker create --name build build
-  #         docker cp build:C:\Paddle\Build\build.zip .
+  #         docker cp build:D:\Paddle\Build\build.zip .
   #         docker rm build
     
