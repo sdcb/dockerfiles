@@ -1,0 +1,72 @@
+name: paddle-linux-build
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/paddle-linux-build.yml'
+  workflow_dispatch:
+
+env:
+  PADDLE_VERSION: "2.6.1"
+  PADDLE_BRANCH: "release/2.6"
+
+jobs:
+  build-all:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build_config:
+          - name: openblas_noavx
+            AVX_FLAG: OFF
+            MKL_FLAG: OFF
+          - name: openblas
+            AVX_FLAG: ON
+            MKL_FLAG: OFF
+          - name: mkldnn
+            AVX_FLAG: ON
+            MKL_FLAG: ON
+    steps:
+      - name: Setup dependencies
+        run: |
+          pip3 install numpy protobuf wheel ninja
+
+      - name: Clone Paddle repository
+        run: |
+          echo "Executing: git clone $PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
+          git clone --depth 1 -b $PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle ~/Paddle
+
+      - name: Configure with CMake
+        run: |
+          mkdir -p ~/Paddle/Build
+          cd ~/Paddle/Build
+          cmake .. -GNinja \
+            -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} \
+            -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} \
+            -DWITH_GPU=OFF \
+            -DON_INFER=ON \
+            -DWITH_PYTHON=OFF \
+            -DWITH_ONNXRUNTIME=ON \
+            -DWITH_UNITY_BUILD=ON
+
+      - name: Build with Ninja
+        run: |
+          cd ~/Paddle/Build
+          ninja all
+
+      - name: Copy common* files
+        run: |
+          cp ~/Paddle/Build/paddle_inference_install_dir/paddle/lib/common* ~/Paddle/Build/paddle_inference_c_install_dir/paddle/lib
+          ls ~/Paddle/Build
+
+      - name: Upload paddle_inference_c_install_dir
+        uses: actions/upload-artifact@v4
+        with:
+          name: c_${{ matrix.build_config.name }}
+          path: ~/Paddle/Build/paddle_inference_c_install_dir/*
+
+      - name: Upload paddle_inference_install_dir
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpp_${{ matrix.build_config.name }}
+          path: ~/Paddle/Build/paddle_inference_install_dir/*
