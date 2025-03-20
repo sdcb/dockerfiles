@@ -3,7 +3,9 @@ name: Hello World Workflow
 on:
   push:
     branches:
-    - main
+      - main
+    paths:
+      - '.github/workflows/test.yml'
   workflow_dispatch:
 
 jobs:
