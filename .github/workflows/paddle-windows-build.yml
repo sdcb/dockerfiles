@@ -36,6 +36,8 @@ jobs:
                     Format-Volume -FileSystem ReFS -Confirm:$false -Force
           Write-Output $Volume
           Write-Output "DEV_DRIVE=$($Volume.DriveLetter):" >> $env:GITHUB_ENV
+          mkdir ${{ env.DEV_DRIVE }}\Paddle
+          cd ${{ env.DEV_DRIVE }}
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
