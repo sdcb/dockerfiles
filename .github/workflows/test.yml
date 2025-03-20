@@ -22,5 +22,5 @@ jobs:
           Write-Host "Total Physical Memory (GB):" ([math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 2))
             
           # 显示所有可用的盘符
-          Write-Host "Available Drives:"
-          Get-Volume
+          cd C:\ && dir
+          cd D:\ && dir
