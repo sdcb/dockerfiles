@@ -27,8 +27,15 @@ jobs:
             AVX_FLAG: ON
             MKL_FLAG: ON
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Create Dev Drive using ReFS
+        run: |
+          $Volume = New-VHD -Path C:/dev-drive.vhdx -SizeBytes 40GB |
+                    Mount-VHD -Passthru |
+                    Initialize-Disk -Passthru |
+                    New-Partition -AssignDriveLetter -UseMaximumSize |
+                    Format-Volume -FileSystem ReFS -Confirm:$false -Force
+          Write-Output $Volume
+          Write-Output "DEV_DRIVE=$($Volume.DriveLetter):" >> $env:GITHUB_ENV
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
@@ -42,12 +49,12 @@ jobs:
       - name: Clone Paddle repository
         run: |
           Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
-          git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle D:\Paddle
+          git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle ${{ env.DEV_DRIVE }}\Paddle
 
       - name: Configure with CMake
         run: |
-          mkdir D:\Paddle\Build
-          cd D:\Paddle\Build
+          mkdir ${{ env.DEV_DRIVE }}\Paddle\Build
+          cd ${{ env.DEV_DRIVE }}\Paddle\Build
           cmake .. -GNinja `
             -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} `
             -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} `
@@ -59,25 +66,25 @@ jobs:
 
       - name: Build with Ninja
         run: |
-          cd D:\Paddle\Build
+          cd ${{ env.DEV_DRIVE }}\Paddle\Build
           ninja all
 
       - name: Copy common* files
         run: |
-          cp D:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* D:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
-          ls D:\Paddle\Build
+          cp ${{ env.DEV_DRIVE }}\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* ${{ env.DEV_DRIVE }}\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
+          ls ${{ env.DEV_DRIVE }}\Paddle\Build
 
       - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
         with:
           name: c_${{ matrix.build_config.name }}
-          path: D:\Paddle\Build\paddle_inference_c_install_dir\*
+          path: ${{ env.DEV_DRIVE }}\Paddle\Build\paddle_inference_c_install_dir\*
 
       - name: Upload paddle_inference_install_dir
         uses: actions/upload-artifact@v4
         with:
           name: cpp_${{ matrix.build_config.name }}
-          path: D:\Paddle\Build\paddle_inference_install_dir\*
+          path: ${{ env.DEV_DRIVE }}\Paddle\Build\paddle_inference_install_dir\*
     
   # cu120-sm86-89:
   #   runs-on: windows-latest
@@ -93,7 +100,7 @@ jobs:
   #     - name: copy artifacts
   #       run: |
   #         docker create --name build build
-  #         docker cp build:D:\Paddle\Build\build.zip .
+  #         docker cp build:${{ env.DEV_DRIVE }}\Paddle\Build\build.zip .
   #         docker rm build
     
   # cu120-sm61-75:
@@ -110,7 +117,7 @@ jobs:
   #     - name: copy artifacts
   #       run: |
   #         docker create --name build build
-  #         docker cp build:D:\Paddle\Build\build.zip .
+  #         docker cp build:${{ env.DEV_DRIVE }}\Paddle\Build\build.zip .
   #         docker rm build
     
   # cu120-sm80:
@@ -127,6 +134,6 @@ jobs:
   #     - name: copy artifacts
   #       run: |
   #         docker create --name build build
-  #         docker cp build:D:\Paddle\Build\build.zip .
+  #         docker cp build:${{ env.DEV_DRIVE }}\Paddle\Build\build.zip .
   #         docker rm build
     
