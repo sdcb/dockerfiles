@@ -74,7 +74,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup RAM Disk
-        uses: ./
+        uses: chad-golden/setup-ramdisk@v1
 
       - name: 'Benchmark R:'
         id: bench-r
