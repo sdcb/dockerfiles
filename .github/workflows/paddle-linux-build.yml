@@ -54,11 +54,6 @@ jobs:
           cd ~/Paddle/Build
           ninja all
 
-      - name: Copy common* files
-        run: |
-          cp ~/Paddle/Build/paddle_inference_install_dir/paddle/lib/common* ~/Paddle/Build/paddle_inference_c_install_dir/paddle/lib
-          ls ~/Paddle/Build
-
       - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
         with:
