@@ -39,10 +39,13 @@ jobs:
 
       - uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Build Paddle ({{ matrix.build_config.name }})
+      - name: Clone Paddle repository
         run: |
           Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
           git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle C:\Paddle
+
+      - name: Configure with CMake
+        run: |
           mkdir C:\Paddle\Build
           cd C:\Paddle\Build
           cmake .. -GNinja `
@@ -53,9 +56,14 @@ jobs:
             -DWITH_PYTHON=OFF `
             -DWITH_ONNXRUNTIME=ON `
             -DWITH_UNITY_BUILD=ON
+
+      - name: Build with Ninja
+        run: |
+          cd C:\Paddle\Build
           ninja all
 
-          # 复制 common* 到 C 目录
+      - name: Copy common* files
+        run: |
           cp C:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* C:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
           ls C:\Paddle\Build
 
