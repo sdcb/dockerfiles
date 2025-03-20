@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Dump VS Info
         run: |
-          dir C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\
+          dir "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\"
       - name: info
         run: |
           # 获取 CPU 型号和频率
