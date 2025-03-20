@@ -27,7 +27,7 @@ jobs:
             AVX_FLAG: ON
             MKL_FLAG: ON
     steps:
-      - name: Create Dev Drive using ReFS
+      - name: Create Dev Drive
         run: |
           $Volume = New-VHD -Path C:/dev-drive.vhdx -SizeBytes 40GB |
                     Mount-VHD -Passthru |
