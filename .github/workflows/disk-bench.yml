@@ -94,65 +94,141 @@ jobs:
         if: matrix.runs-on == 'windows-2022' || matrix.runs-on == 'windows-2025'
         run: |
           $Volume = New-VHD -Path C:/dev-drive.vhdx -SizeBytes 10GB |
-                    Mount-VHD -Passthru |
-                    Initialize-Disk -Passthru |
-                    New-Partition -AssignDriveLetter -UseMaximumSize |
-                    Format-Volume -FileSystem ReFS -Confirm:$false -Force
+                Mount-VHD -Passthru |
+                Initialize-Disk -Passthru |
+                New-Partition -AssignDriveLetter -UseMaximumSize |
+                Format-Volume -FileSystem ReFS -Confirm:$false -Force
           Write-Output $Volume
           Write-Output "DEV_DRIVE=$($Volume.DriveLetter):" >> $env:GITHUB_ENV
-
+  
       - name: Bench Dev ReFS Drive
         if: matrix.runs-on == 'windows-2022' || matrix.runs-on == 'windows-2025'
         id: bench-dev-refs
         run: |
           $output = & C:\DISKSPD\amd64\diskspd.exe -c${{ env.TEST_FILE_SIZE }} -b4K -F${{ env.CORES }} -r -o32 -W${{ env.WARMUP }} -d${{ env.DURATION }} -Sh ${{ env.DEV_DRIVE }}\testfile.dat | Out-String
           $iops = [regex]::Match($output, 'total:\s+\d+ \|\s+\d+ \|\s+[\d\.]+ \|\s+([\d\.]+)').Groups[1].Value
-
+  
           Write-Host $output
           Write-Host "🔍 Performance Results"
           Write-Host "===================="
           Write-Host "📊 IOPS: $iops"
           Write-Host "===================="
-
+  
           echo "IOPS=$iops" >> $env:GITHUB_OUTPUT
-
+  
       - name: Create Dev Drive using NTFS
         if: matrix.runs-on == 'windows-2022' || matrix.runs-on == 'windows-2025'
         run: |
           $Volume = New-VHD -Path C:/dev-drive-ntfs.vhdx -SizeBytes 10GB |
-                    Mount-VHD -Passthru |
-                    Initialize-Disk -Passthru |
-                    New-Partition -AssignDriveLetter -UseMaximumSize |
-                    Format-Volume -FileSystem NTFS -Confirm:$false -Force
+                Mount-VHD -Passthru |
+                Initialize-Disk -Passthru |
+                New-Partition -AssignDriveLetter -UseMaximumSize |
+                Format-Volume -FileSystem NTFS -Confirm:$false -Force
           Write-Output $Volume
           Write-Output "DEV_DRIVE_NTFS=$($Volume.DriveLetter):" >> $env:GITHUB_ENV
-
+  
       - name: Bench Dev NTFS Drive
         if: matrix.runs-on == 'windows-2022' || matrix.runs-on == 'windows-2025'
         id: bench-dev-ntfs
         run: |
           $output = & C:\DISKSPD\amd64\diskspd.exe -c${{ env.TEST_FILE_SIZE }} -b4K -F${{ env.CORES }} -r -o32 -W${{ env.WARMUP }} -d${{ env.DURATION }} -Sh ${{ env.DEV_DRIVE_NTFS }}\testfile.dat | Out-String
           $iops = [regex]::Match($output, 'total:\s+\d+ \|\s+\d+ \|\s+[\d\.]+ \|\s+([\d\.]+)').Groups[1].Value
-
+  
           Write-Host $output
           Write-Host "🔍 Performance Results"
           Write-Host "===================="
           Write-Host "📊 IOPS: $iops"
           Write-Host "===================="
-
+  
           echo "IOPS=$iops" >> $env:GITHUB_OUTPUT
-
+  
+      - name: Create Dev Drive on D using ReFS
+        if: matrix.runs-on == 'windows-2022' || matrix.runs-on == 'windows-2025'
+        run: |
+          if (-Not (Test-Path "D:\")) {
+            Write-Host "The path D:\ is not available. Skipping."
+            echo "D_DEV_DRIVE_REFS=N/A" >> $env:GITHUB_ENV
+            exit 0
+          }
+          
+          $Volume = New-VHD -Path D:/dev-drive.vhdx -SizeBytes 10GB |
+                Mount-VHD -Passthru |
+                Initialize-Disk -Passthru |
+                New-Partition -AssignDriveLetter -UseMaximumSize |
+                Format-Volume -FileSystem ReFS -Confirm:$false -Force
+          Write-Output $Volume
+          Write-Output "D_DEV_DRIVE_REFS=$($Volume.DriveLetter):" >> $env:GITHUB_ENV
+  
+      - name: Bench Dev ReFS Drive on D
+        if: matrix.runs-on == 'windows-2022' || matrix.runs-on == 'windows-2025'
+        id: bench-d-dev-refs
+        run: |
+          if ("${{ env.D_DEV_DRIVE_REFS }}" -eq "N/A") {
+            echo "IOPS=N/A" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+          
+          $output = & C:\DISKSPD\amd64\diskspd.exe -c${{ env.TEST_FILE_SIZE }} -b4K -F${{ env.CORES }} -r -o32 -W${{ env.WARMUP }} -d${{ env.DURATION }} -Sh ${{ env.D_DEV_DRIVE_REFS }}\testfile.dat | Out-String
+          $iops = [regex]::Match($output, 'total:\s+\d+ \|\s+\d+ \|\s+[\d\.]+ \|\s+([\d\.]+)').Groups[1].Value
+  
+          Write-Host $output
+          Write-Host "🔍 Performance Results"
+          Write-Host "===================="
+          Write-Host "📊 IOPS: $iops"
+          Write-Host "===================="
+  
+          echo "IOPS=$iops" >> $env:GITHUB_OUTPUT
+  
+      - name: Create Dev Drive on D using NTFS
+        if: matrix.runs-on == 'windows-2022' || matrix.runs-on == 'windows-2025'
+        run: |
+          if (-Not (Test-Path "D:\")) {
+            Write-Host "The path D:\ is not available. Skipping."
+            echo "D_DEV_DRIVE_NTFS=N/A" >> $env:GITHUB_ENV
+            exit 0
+          }
+          
+          $Volume = New-VHD -Path D:/dev-drive-ntfs.vhdx -SizeBytes 10GB |
+                Mount-VHD -Passthru |
+                Initialize-Disk -Passthru |
+                New-Partition -AssignDriveLetter -UseMaximumSize |
+                Format-Volume -FileSystem NTFS -Confirm:$false -Force
+          Write-Output $Volume
+          Write-Output "D_DEV_DRIVE_NTFS=$($Volume.DriveLetter):" >> $env:GITHUB_ENV
+  
+      - name: Bench Dev NTFS Drive on D
+        if: matrix.runs-on == 'windows-2022' || matrix.runs-on == 'windows-2025'
+        id: bench-d-dev-ntfs
+        run: |
+          if ("${{ env.D_DEV_DRIVE_NTFS }}" -eq "N/A") {
+            echo "IOPS=N/A" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+          
+          $output = & C:\DISKSPD\amd64\diskspd.exe -c${{ env.TEST_FILE_SIZE }} -b4K -F${{ env.CORES }} -r -o32 -W${{ env.WARMUP }} -d${{ env.DURATION }} -Sh ${{ env.D_DEV_DRIVE_NTFS }}\testfile.dat | Out-String
+          $iops = [regex]::Match($output, 'total:\s+\d+ \|\s+\d+ \|\s+[\d\.]+ \|\s+([\d\.]+)').Groups[1].Value
+  
+          Write-Host $output
+          Write-Host "🔍 Performance Results"
+          Write-Host "===================="
+          Write-Host "📊 IOPS: $iops"
+          Write-Host "===================="
+  
+          echo "IOPS=$iops" >> $env:GITHUB_OUTPUT
+  
       - name: Summarize
         shell: bash
         run: |
-          echo "| Drive            |     IOPS     |" >> result_table.md
-          echo "|:-----------------|-------------:|" >> result_table.md
-          echo "| C: (OS)          | ${{ steps.bench-c.outputs.IOPS }}        |" >> result_table.md
-          echo "| D: (temp)        | ${{ steps.bench-d.outputs.IOPS }}        |" >> result_table.md
-          echo "| R: (RAM disk)    | ${{ steps.bench-r.outputs.IOPS }}        |" >> result_table.md
-          echo "| Dev Drive (ReFS) | ${{ steps.bench-dev-refs.outputs.IOPS }} |" >> result_table.md
-          echo "| Dev Drive (NTFS) | ${{ steps.bench-dev-ntfs.outputs.IOPS }} |" >> result_table.md
-
+          echo "| Drive                |     IOPS     |" >> result_table.md
+          echo "|:---------------------|-------------:|" >> result_table.md
+          echo "| C: (OS)              | ${{ steps.bench-c.outputs.IOPS }}          |" >> result_table.md
+          echo "| D: (temp)            | ${{ steps.bench-d.outputs.IOPS }}          |" >> result_table.md
+          echo "| R: (RAM disk)        | ${{ steps.bench-r.outputs.IOPS }}          |" >> result_table.md
+          echo "| C: Dev Drive (ReFS)  | ${{ steps.bench-dev-refs.outputs.IOPS }}   |" >> result_table.md
+          echo "| C: Dev Drive (NTFS)  | ${{ steps.bench-dev-ntfs.outputs.IOPS }}   |" >> result_table.md
+          echo "| D: Dev Drive (ReFS)  | ${{ steps.bench-d-dev-refs.outputs.IOPS }} |" >> result_table.md
+          echo "| D: Dev Drive (NTFS)  | ${{ steps.bench-d-dev-ntfs.outputs.IOPS }} |" >> result_table.md
+  
           echo "## Benchmark Results (${{ matrix.runs-on }}) 📊" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Here are the IOPS results for each drive tested during the benchmark run:" >> $GITHUB_STEP_SUMMARY
