@@ -37,9 +37,6 @@ jobs:
           Write-Output $Volume
           Write-Output "DEV_DRIVE=$($Volume.DriveLetter):" >> $env:GITHUB_ENV
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
-
       - name: Setup dependencies
         run: |
           pip3 install numpy protobuf wheel ninja
