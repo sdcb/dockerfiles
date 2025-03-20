@@ -29,13 +29,14 @@ jobs:
     steps:
       - name: Create Dev Drive
         run: |
-          $Volume = New-VHD -Path C:/dev-drive.vhdx -SizeBytes 40GB |
-                    Mount-VHD -Passthru |
-                    Initialize-Disk -Passthru |
-                    New-Partition -AssignDriveLetter -UseMaximumSize |
-                    Format-Volume -FileSystem NTFS -Confirm:$false -Force
-          Write-Output $Volume
-          Write-Output "DEV_DRIVE=$($Volume.DriveLetter):" >> $env:GITHUB_ENV
+          # $Volume = New-VHD -Path C:/dev-drive.vhdx -SizeBytes 40GB |
+          #           Mount-VHD -Passthru |
+          #           Initialize-Disk -Passthru |
+          #           New-Partition -AssignDriveLetter -UseMaximumSize |
+          #           Format-Volume -FileSystem NTFS -Confirm:$false -Force
+          # Write-Output $Volume
+          # Write-Output "DEV_DRIVE=$($Volume.DriveLetter):" >> $env:GITHUB_ENV
+          Write-Output "DEV_DRIVE=D:" >> $env:GITHUB_ENV
 
       - name: Setup dependencies
         run: |
