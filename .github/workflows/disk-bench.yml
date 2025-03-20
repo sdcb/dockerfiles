@@ -13,9 +13,9 @@ defaults:
 
 env:
   DURATION: 30
-  WARMUP: 30
+  WARMUP: 10
   CORES: 4
-  TEST_FILE_SIZE: 10M
+  TEST_FILE_SIZE: 100M
 
 jobs:
   bench:
