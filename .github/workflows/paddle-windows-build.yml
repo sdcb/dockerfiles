@@ -45,6 +45,8 @@ jobs:
           pip3 install numpy protobuf wheel ninja
 
       - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          toolset: '14.29'
 
       - name: Clone Paddle repository
         run: |
