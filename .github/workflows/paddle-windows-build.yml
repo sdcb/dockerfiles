@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  PADDLE_VERSION: "v3.0.0-rc1"
+  PADDLE_VERSION: "3.0.0-rc1"
   PADDLE_BRANCH: "v3.0.0-rc1"
 
 jobs:
