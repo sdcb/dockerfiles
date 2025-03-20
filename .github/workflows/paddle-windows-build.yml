@@ -12,8 +12,20 @@ env:
   PADDLE_BRANCH: "release/2.6"
 
 jobs:
-  openblas-noavx:
+  build-all:
     runs-on: windows-2019
+    strategy:
+      matrix:
+        build_config:
+          - name: openblas_noavx
+            AVX_FLAG: OFF
+            MKL_FLAG: OFF
+          - name: openblas
+            AVX_FLAG: ON
+            MKL_FLAG: OFF
+          - name: mkldnn
+            AVX_FLAG: ON
+            MKL_FLAG: ON
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,115 +33,42 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
 
-      - name: setup deps
+      - name: Setup dependencies
         run: |
           pip3 install numpy protobuf wheel ninja
 
       - uses: ilammy/msvc-dev-cmd@v1
 
-      - name: run
+      - name: Build Paddle ({{ matrix.build_config.name }})
         run: |
           Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
           git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle C:\Paddle
           mkdir C:\Paddle\Build
           cd C:\Paddle\Build
-
-          cmake .. -GNinja -DWITH_AVX=OFF -DWITH_MKL=OFF -DWITH_GPU=OFF -DON_INFER=ON -DWITH_PYTHON=OFF -DWITH_ONNXRUNTIME=ON -DWITH_UNITY_BUILD=ON
+          cmake .. -GNinja `
+            -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} `
+            -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} `
+            -DWITH_GPU=OFF `
+            -DON_INFER=ON `
+            -DWITH_PYTHON=OFF `
+            -DWITH_ONNXRUNTIME=ON `
+            -DWITH_UNITY_BUILD=ON
           ninja all
 
+          # 复制 common* 到 C 目录
           cp C:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* C:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
           ls C:\Paddle\Build
-      
-      - name: Upload paddle_inference_c_install_dir artifacts
+
+      - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
         with:
-          name: c_openblas_noavx
+          name: c_${{ matrix.build_config.name }}
           path: C:\Paddle\Build\paddle_inference_c_install_dir\*
-  
-      - name: Upload paddle_inference_install_dir artifacts
+
+      - name: Upload paddle_inference_install_dir
         uses: actions/upload-artifact@v4
         with:
-          name: cpp_openblas_noavx
-          path: C:\Paddle\Build\paddle_inference_install_dir\*
-    
-  openblas:
-    runs-on: windows-2019
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
-
-      - name: setup deps
-        run: |
-          pip3 install numpy protobuf wheel ninja
-
-      - uses: ilammy/msvc-dev-cmd@v1
-
-      - name: run
-        run: |
-          Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
-          git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle C:\Paddle
-          mkdir C:\Paddle\Build
-          cd C:\Paddle\Build
-
-          cmake .. -GNinja -DWITH_AVX=ON -DWITH_MKL=OFF -DWITH_GPU=OFF -DON_INFER=ON -DWITH_PYTHON=OFF -DWITH_ONNXRUNTIME=ON -DWITH_UNITY_BUILD=ON
-          ninja all
-
-          cp C:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* C:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
-          ls C:\Paddle\Build
-      
-      - name: Upload paddle_inference_c_install_dir artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: c_openblas
-          path: C:\Paddle\Build\paddle_inference_c_install_dir\*
-  
-      - name: Upload paddle_inference_install_dir artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: cpp_openblas
-          path: C:\Paddle\Build\paddle_inference_install_dir\*
-    
-  mkldnn:
-    runs-on: windows-2019
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
-
-      - name: setup deps
-        run: |
-          pip3 install numpy protobuf wheel ninja
-
-      - uses: ilammy/msvc-dev-cmd@v1
-
-      - name: run
-        run: |
-          Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
-          git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle C:\Paddle
-          mkdir C:\Paddle\Build
-          cd C:\Paddle\Build
-
-          cmake .. -GNinja -DWITH_AVX=ON -DWITH_MKL=ON -DWITH_GPU=OFF -DON_INFER=ON -DWITH_PYTHON=OFF -DWITH_ONNXRUNTIME=ON -DWITH_UNITY_BUILD=ON
-          ninja all
-
-          cp C:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* C:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
-          ls C:\Paddle\Build
-      
-      - name: Upload paddle_inference_c_install_dir artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: c_mkldnn
-          path: C:\Paddle\Build\paddle_inference_c_install_dir\*
-  
-      - name: Upload paddle_inference_install_dir artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: cpp_mkldnn
+          name: cpp_${{ matrix.build_config.name }}
           path: C:\Paddle\Build\paddle_inference_install_dir\*
     
   # cu120-sm86-89:
