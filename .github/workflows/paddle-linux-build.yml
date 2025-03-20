@@ -54,6 +54,14 @@ jobs:
           cd ~/Paddle/Build
           ninja all
 
+      - name: Copy so files
+        run: |
+          ls ~/Paddle/paddle/fluid/inference/capi_exp/
+          cp ~/Paddle/paddle/fluid/inference/capi_exp/* ~/Paddle/Build/paddle_inference_c_install_dir/
+
+          ls ~/Paddle/paddle/fluid/inference/
+          cp ~/Paddle/paddle/fluid/inference/* ~/Paddle/Build/paddle_inference_install_dir/
+
       - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
         with:
