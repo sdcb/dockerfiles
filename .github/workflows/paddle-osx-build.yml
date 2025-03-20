@@ -30,6 +30,9 @@ jobs:
       - name: Setup dependencies
         run: |
           brew install ninja
+          # 使用虚拟环境安装 Python 依赖
+          python3 -m venv ~/paddle_venv
+          source ~/paddle_venv/bin/activate
           pip3 install numpy protobuf wheel
 
       - name: Clone Paddle repository
@@ -39,6 +42,8 @@ jobs:
 
       - name: Configure with CMake
         run: |
+          # 确保虚拟环境被激活
+          source ~/paddle_venv/bin/activate
           mkdir -p ~/Paddle/Build
           cd ~/Paddle/Build
           cmake .. -GNinja \
