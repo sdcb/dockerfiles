@@ -20,7 +20,11 @@ jobs:
 
           # 或以更易读的方式显示总内存大小
           Write-Host "Total Physical Memory (GB):" ([math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 2))
-            
-          # 显示所有可用的盘符
-          cd C:\ && dir
-          cd D:\ && dir
+      - name: dump disk info
+        shell: cmd
+        run: |
+          wmic logicaldisk get name, size, freespace, volumename, description
+          cd C:\ 
+          dir
+          cd D:\
+          dir
