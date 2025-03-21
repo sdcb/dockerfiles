@@ -35,10 +35,13 @@ jobs:
         with:
           toolset: '14.29'
 
-      - name: Clone Paddle repository
-        run: |
-          Write-Host "Executing: git clone $env:PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
-          git clone --depth 1 -b $env:PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle .\Paddle
+      - name: Checkout Paddle repository
+        uses: actions/checkout@v4
+        with:
+          repository: PaddlePaddle/Paddle
+          ref: ${{ env.PADDLE_BRANCH }}
+          path: ./Paddle
+          fetch-depth: 1
 
       - name: Configure with CMake
         run: |
