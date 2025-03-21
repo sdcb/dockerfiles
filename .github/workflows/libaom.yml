@@ -24,12 +24,24 @@ jobs:
         cmake -DBUILD_SHARED_LIBS=ON -DENABLE_DOCS=OFF -DENABLE_TESTS=OFF ..
         make -j$(nproc)
 
+    - name: Debug file structure
+      run: |
+        echo "==== Build dir structure ===="
+        find aom/build -name '*.h' -ls
+        echo "==== Config headers ===="
+        ls -l aom/build/config/
+
     - name: Create dist directory
       run: |
         mkdir -p dist/include dist/lib
-        cp -R aom/build/*.so* dist/lib/
+        # 拷贝动态库文件（包含版本符号链接）
+        cp -P aom/build/*.so* dist/lib/
+        # 拷贝主头文件目录
         cp -R aom/aom/*.h dist/include/
-        cp -R aom/build/aom*.h dist/include/
+        # 拷贝构建生成的配置头文件（修正路径）
+        cp aom/build/config/*.h dist/include/
+        # 添加版本信息头文件（如果存在）
+        [ -f aom/build/aom_version.h ] && cp aom/build/aom_version.h dist/include/
 
     - name: Write test program
       run: |
