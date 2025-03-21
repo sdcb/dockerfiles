@@ -1,0 +1,68 @@
+name: Build and Test libyuv
+
+on:
+  push:
+    branches: [ "main" ]
+    paths: [ ".github/workflows/libyuv.yml" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake git libjpeg-dev
+
+    - name: Clone libyuv
+      run: |
+        git clone https://chromium.googlesource.com/libyuv/libyuv
+
+    - name: Build libyuv
+      run: |
+        mkdir -p libyuv/build
+        cd libyuv/build
+        cmake -DBUILD_SHARED_LIBS=ON ..
+        make -j$(nproc)
+
+    - name: Write test program
+      run: |
+        cat > test_libyuv.cpp << 'EOF'
+        #include <libyuv.h>
+        #include <iostream>
+
+        int main() {
+            uint8_t src_argb[4*4*4] = {0}; // 4x4 ARGB
+            uint8_t dst_y[4*4] = {0};
+            uint8_t dst_u[4*4/4] = {0};
+            uint8_t dst_v[4*4/4] = {0};
+
+            int result = libyuv::ARGBToI420(
+                src_argb, 16,
+                dst_y, 4,
+                dst_u, 2,
+                dst_v, 2,
+                4, 4
+            );
+
+            if (result == 0) {
+                std::cout << "✅ libyuv test passed!" << std::endl;
+                return 0;
+            } else {
+                std::cerr << "❌ libyuv test failed!" << std::endl;
+                return 1;
+            }
+        }
+        EOF
+
+    - name: Compile test program
+      run: |
+        g++ test_libyuv.cpp -o test_libyuv \
+            -Ilibyuv/include \
+            -Llibyuv/build \
+            -lyuv
+
+    - name: Run test
+      run: |
+        LD_LIBRARY_PATH=libyuv/build ./test_libyuv
