@@ -66,3 +66,18 @@ jobs:
     - name: Run test
       run: |
         LD_LIBRARY_PATH=libyuv/build ./test_libyuv
+
+    - name: Package artifacts
+      run: |
+        ls libyuv/build/
+        mkdir -p artifact/lib
+        mkdir -p artifact/include
+        cp libyuv/build/libyuv.so* artifact/lib/
+        cp libyuv/build/libyuv.a* artifact/lib/
+        cp -r libyuv/include/* artifact/include/
+  
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: libyuv-package
+        path: artifact/
