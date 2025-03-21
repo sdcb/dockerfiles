@@ -33,15 +33,22 @@ jobs:
 
     - name: Create dist directory
       run: |
-        mkdir -p dist/include dist/lib
-        # 拷贝动态库文件（包含版本符号链接）
-        cp -P aom/build/*.so* dist/lib/
-        # 拷贝主头文件目录
-        cp -R aom/aom/*.h dist/include/
-        # 拷贝构建生成的配置头文件（修正路径）
+        mkdir -p dist/include/aom dist/lib
+        # 拷贝共享库（保留符号链接）
+        cp -P aom/build/libaom.so* dist/lib/
+        
+        # 创建标准包含目录结构
+        mkdir -p dist/include/aom
+        
+        # 拷贝主头文件（保持目录结构）
+        cp aom/aom/*.h dist/include/aom/
+        cp aom/aom_codec.h dist/include/
+        
+        # 拷贝构建生成的配置头文件
         cp aom/build/config/*.h dist/include/
-        # 添加版本信息头文件（如果存在）
-        [ -f aom/build/aom_version.h ] && cp aom/build/aom_version.h dist/include/
+        
+        # 特殊处理版本头文件
+        cp aom/build/config/aom_version.h dist/include/aom/
 
     - name: Write test program
       run: |
