@@ -10,7 +10,7 @@ on:
 
 jobs:
   hello_world_job:
-    runs-on: windows-2025
+    runs-on: self-hosted
     steps:
       - name: Dump VS Info
         run: |
