@@ -1,0 +1,57 @@
+name: Build and Test libaom
+
+on: 
+  push:
+    branches: [ "main" ]
+    paths: [ ".github/workflows/libaom.yml" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake yasm git build-essential
+
+    - name: Clone libaom source
+      run: git clone https://aomedia.googlesource.com/aom/
+
+    - name: Configure and build
+      run: |
+        mkdir -p aom/build
+        cd aom/build
+        cmake -DBUILD_SHARED_LIBS=ON -DENABLE_DOCS=OFF -DENABLE_TESTS=OFF ..
+        make -j$(nproc)
+
+    - name: Create dist directory
+      run: |
+        mkdir -p dist/include dist/lib
+        cp -R aom/build/*.so* dist/lib/
+        cp -R aom/aom/*.h dist/include/
+        cp -R aom/build/aom*.h dist/include/
+
+    - name: Write test program
+      run: |
+        cat << 'EOF' > test_aom.c
+        #include <aom/aom.h>
+        #include <stdio.h>
+
+        int main() {
+            printf("AOM version: %s\n", aom_codec_version_str());
+            return 0;
+        }
+        EOF
+
+    - name: Compile and test
+      run: |
+        gcc test_aom.c -I./dist/include -L./dist/lib -laom -o test_aom
+        LD_LIBRARY_PATH=./dist/lib ./test_aom
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: libaom-artifacts
+        path: |
+          dist/include
+          dist/lib
