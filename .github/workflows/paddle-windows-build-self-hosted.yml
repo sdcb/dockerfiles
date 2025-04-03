@@ -15,7 +15,7 @@ jobs:
   build-all:
     runs-on: self-hosted
     strategy:
-      max-parallel: 3
+      max-parallel: 2
       matrix:
         build_config:
           # - name: openblas
@@ -35,9 +35,9 @@ jobs:
           - name: gpu-sm89
             CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
             CMAKE_FLAGS: -DWITH_GPU=ON -DWITH_MKL=OFF -DWITH_ONEDNN=OFF -DWITH_ONNXRUNTIME=OFF -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="89;" -DCMAKE_CUDA_ARCHITECTURES="89-real;"
-          - name: gpu-sm90
+          - name: gpu-sm75
             CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
-            CMAKE_FLAGS: -DWITH_GPU=ON -DWITH_MKL=OFF -DWITH_ONEDNN=OFF -DWITH_ONNXRUNTIME=OFF -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="90;" -DCMAKE_CUDA_ARCHITECTURES="90-real;"
+            CMAKE_FLAGS: -DWITH_GPU=ON -DWITH_MKL=OFF -DWITH_ONEDNN=OFF -DWITH_ONNXRUNTIME=OFF -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="75;" -DCMAKE_CUDA_ARCHITECTURES="75-real;"
 
     steps:
       - name: Clean up
