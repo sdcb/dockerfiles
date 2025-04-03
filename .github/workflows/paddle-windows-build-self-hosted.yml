@@ -34,10 +34,13 @@ jobs:
         run: |
           Get-ChildItem -Path .\ -Force -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 
+      - name: Setup environment
+        run: |
+          echo "CUDA_PATH=${{ matrix.build_config.CUDA_PATH }}" >> $env:GITHUB_ENV
+
       - name: Setup dependencies
         run: |
           pip3 install numpy protobuf wheel ninja
-          echo "CUDA_PATH=${{ matrix.build_config.CUDA_PATH }}" >> $GITHUB_ENV
 
       - uses: ilammy/msvc-dev-cmd@v1
         with:
