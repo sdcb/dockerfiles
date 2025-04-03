@@ -1,0 +1,76 @@
+name: Build and Test libaom
+
+on: 
+  push:
+    branches: [ "main" ]
+    paths: [ ".github/workflows/libaom.yml" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake yasm git build-essential
+
+    - name: Clone libaom source
+      run: git clone https://aomedia.googlesource.com/aom/
+
+    - name: Configure and build
+      run: |
+        mkdir -p aom/build
+        cd aom/build
+        cmake -DBUILD_SHARED_LIBS=ON -DENABLE_DOCS=OFF -DENABLE_TESTS=OFF ..
+        make -j$(nproc)
+
+    - name: Debug file structure
+      run: |
+        echo "==== Build dir structure ===="
+        find aom/build -name '*.h' -ls
+        echo "==== Config headers ===="
+        ls -l aom/build/config/
+
+    - name: Create dist directory
+      run: |
+        mkdir -p dist/include/aom dist/lib
+        # 拷贝共享库（保留符号链接）
+        cp -P aom/build/libaom.so* dist/lib/
+        
+        # 创建标准包含目录结构
+        mkdir -p dist/include/aom
+        
+        # 拷贝主头文件（保持目录结构）
+        cp aom/aom/*.h dist/include/aom/
+        cp aom/aom_codec.h dist/include/
+        
+        # 拷贝构建生成的配置头文件
+        cp aom/build/config/*.h dist/include/
+        
+        # 特殊处理版本头文件
+        cp aom/build/config/aom_version.h dist/include/aom/
+
+    - name: Write test program
+      run: |
+        cat << 'EOF' > test_aom.c
+        #include <aom/aom.h>
+        #include <stdio.h>
+
+        int main() {
+            printf("AOM version: %s\n", aom_codec_version_str());
+            return 0;
+        }
+        EOF
+
+    - name: Compile and test
+      run: |
+        gcc test_aom.c -I./dist/include -L./dist/lib -laom -o test_aom
+        LD_LIBRARY_PATH=./dist/lib ./test_aom
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: libaom-artifacts
+        path: |
+          dist/include
+          dist/lib
