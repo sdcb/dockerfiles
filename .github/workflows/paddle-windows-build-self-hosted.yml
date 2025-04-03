@@ -15,21 +15,23 @@ jobs:
   build-all:
     runs-on: self-hosted
     strategy:
+      max-parallel: 2
       matrix:
         build_config:
-          - name: openblas
-            AVX_FLAG: ON
-            MKL_FLAG: OFF
+          # - name: openblas
+          #   CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=OFF -DWITH_GPU=OFF"
           # - name: openblas_noavx
-          #   AVX_FLAG: OFF
-          #   MKL_FLAG: OFF
-          # - name: mkldnn
-          #   AVX_FLAG: ON
-          #   MKL_FLAG: ON
+          #   CMAKE_FLAGS: "-DWITH_AVX=OFF -DWITH_MKL=OFF -DWITH_GPU=OFF"
+          - name: mkldnn
+            CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=ON -DWITH_GPU=OFF"
+          - name: onednn
+            CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=OFF -DWITH_GPU=OFF -DWITH_ONEDNN=ON"
+          - name: openvino
+            CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=OFF -DWITH_GPU=OFF -DWITH_OPENVINO=ON"
     steps:
       - name: Clean up
         run: |
-          Remove-Item -Path .\Paddle -Recurse -Force -ErrorAction SilentlyContinue
+          Get-ChildItem -Path .\ -Force -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 
       - name: Setup dependencies
         run: |
@@ -52,8 +54,7 @@ jobs:
           mkdir .\Paddle\Build
           cd .\Paddle\Build
           cmake .. -GNinja `
-            -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} `
-            -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} `
+            ${{ matrix.build_config.CMAKE_FLAGS }} `
             -DWITH_GPU=OFF `
             -DON_INFER=ON `
             -DWITH_PYTHON=OFF `
