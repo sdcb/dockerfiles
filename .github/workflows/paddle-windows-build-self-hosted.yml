@@ -15,7 +15,7 @@ jobs:
   build-all:
     runs-on: self-hosted
     strategy:
-      max-parallel: 2
+      max-parallel: 3
       matrix:
         build_config:
           # - name: openblas
@@ -26,9 +26,19 @@ jobs:
           #   CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=ON -DWITH_GPU=OFF"
           # - name: onednn
           #   CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=OFF -DWITH_GPU=OFF -DWITH_ONEDNN=ON"
-          - name: gpu
+          - name: gpu-sm80
             CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
-            CMAKE_FLAGS: -DWITH_GPU=ON -DWITH_MKL=OFF -DWITH_ONEDNN=OFF -DWITH_ONNXRUNTIME=OFF -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="86;89" -DCMAKE_CUDA_ARCHITECTURES="86-real;89-real"
+            CMAKE_FLAGS: -DWITH_GPU=ON -DWITH_MKL=OFF -DWITH_ONEDNN=OFF -DWITH_ONNXRUNTIME=OFF -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="80;" -DCMAKE_CUDA_ARCHITECTURES="80-real;"
+          - name: gpu-sm86
+            CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
+            CMAKE_FLAGS: -DWITH_GPU=ON -DWITH_MKL=OFF -DWITH_ONEDNN=OFF -DWITH_ONNXRUNTIME=OFF -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="86;" -DCMAKE_CUDA_ARCHITECTURES="86-real;"
+          - name: gpu-sm89
+            CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
+            CMAKE_FLAGS: -DWITH_GPU=ON -DWITH_MKL=OFF -DWITH_ONEDNN=OFF -DWITH_ONNXRUNTIME=OFF -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="89;" -DCMAKE_CUDA_ARCHITECTURES="89-real;"
+          - name: gpu-sm90
+            CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
+            CMAKE_FLAGS: -DWITH_GPU=ON -DWITH_MKL=OFF -DWITH_ONEDNN=OFF -DWITH_ONNXRUNTIME=OFF -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="90;" -DCMAKE_CUDA_ARCHITECTURES="90-real;"
+
     steps:
       - name: Clean up
         run: |
