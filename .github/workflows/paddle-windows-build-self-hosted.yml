@@ -22,12 +22,13 @@ jobs:
           #   CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=OFF -DWITH_GPU=OFF"
           # - name: openblas_noavx
           #   CMAKE_FLAGS: "-DWITH_AVX=OFF -DWITH_MKL=OFF -DWITH_GPU=OFF"
-          - name: mkldnn
-            CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=ON -DWITH_GPU=OFF"
-          - name: onednn
-            CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=OFF -DWITH_GPU=OFF -DWITH_ONEDNN=ON"
-          - name: openvino
-            CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=OFF -DWITH_GPU=OFF -DWITH_OPENVINO=ON"
+          # - name: mkldnn
+          #   CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=ON -DWITH_GPU=OFF"
+          # - name: onednn
+          #   CMAKE_FLAGS: "-DWITH_AVX=ON -DWITH_MKL=OFF -DWITH_GPU=OFF -DWITH_ONEDNN=ON"
+          - name: GPU
+            CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
+            CMAKE_FLAGS: -DWITH_GPU=ON -DWITH_MKL=OFF -DWITH_ONEDNN=OFF -DWITH_ONNXRUNTIME=OFF -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="86;89" -DCMAKE_CUDA_ARCHITECTURES="86-real;89-real"
     steps:
       - name: Clean up
         run: |
@@ -36,6 +37,7 @@ jobs:
       - name: Setup dependencies
         run: |
           pip3 install numpy protobuf wheel ninja
+          echo "CUDA_PATH=${{ matrix.build_config.CUDA_PATH }}" >> $GITHUB_ENV
 
       - uses: ilammy/msvc-dev-cmd@v1
         with:
