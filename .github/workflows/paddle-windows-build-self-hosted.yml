@@ -66,7 +66,7 @@ jobs:
       - name: Build with Ninja
         run: |
           cd .\Paddle\Build
-          ninja -j 10 all
+          ninja all
 
       - name: Copy common* files
         run: |
