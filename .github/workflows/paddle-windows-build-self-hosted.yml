@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  PADDLE_VERSION: "2.6.1"
-  PADDLE_BRANCH: "release/2.6"
+  PADDLE_VERSION: "3.0.0"
+  PADDLE_BRANCH: "v3.0.0"
 
 jobs:
   build-all:
@@ -17,16 +17,23 @@ jobs:
     strategy:
       matrix:
         build_config:
-          - name: openblas_noavx
-            AVX_FLAG: OFF
-            MKL_FLAG: OFF
           - name: openblas
             AVX_FLAG: ON
             MKL_FLAG: OFF
-          - name: mkldnn
-            AVX_FLAG: ON
-            MKL_FLAG: ON
+          # - name: openblas_noavx
+          #   AVX_FLAG: OFF
+          #   MKL_FLAG: OFF
+          # - name: mkldnn
+          #   AVX_FLAG: ON
+          #   MKL_FLAG: ON
     steps:
+      - name: Clean up
+        shell: bash
+        run: |
+          rm -rf .\Paddle\Build
+          rm -rf .\Paddle\paddle_inference_c_install_dir
+          rm -rf .\Paddle\paddle_inference_install_dir
+
       - name: Setup dependencies
         run: |
           pip3 install numpy protobuf wheel ninja
