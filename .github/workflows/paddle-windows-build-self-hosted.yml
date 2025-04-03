@@ -60,10 +60,8 @@ jobs:
           cd .\Paddle\Build
           cmake .. -GNinja `
             ${{ matrix.build_config.CMAKE_FLAGS }} `
-            -DWITH_GPU=OFF `
             -DON_INFER=ON `
             -DWITH_PYTHON=OFF `
-            -DWITH_ONNXRUNTIME=ON `
             -DWITH_UNITY_BUILD=ON
 
       - name: Build with Ninja
