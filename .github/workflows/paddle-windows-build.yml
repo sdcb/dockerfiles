@@ -9,7 +9,7 @@ on:
 
 env:
   PADDLE_VERSION: "3.0.0"
-  PADDLE_BRANCH: "release/3.0"
+  PADDLE_BRANCH: "v3.0.0"
 
 jobs:
   build-all:
@@ -40,13 +40,13 @@ jobs:
         with:
           repository: PaddlePaddle/Paddle
           ref: ${{ env.PADDLE_BRANCH }}
-          path: D:\Paddle
+          path: Paddle
           fetch-depth: 1
 
       - name: Configure with CMake
         run: |
-          mkdir D:\Paddle\Build
-          cd D:\Paddle\Build
+          mkdir .\Paddle\Build
+          cd .\Paddle\Build
           cmake .. -GNinja `
             -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} `
             -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} `
@@ -58,25 +58,25 @@ jobs:
 
       - name: Build with Ninja
         run: |
-          cd D:\Paddle\Build
+          cd .\Paddle\Build
           ninja all
 
       - name: Copy common* files
         run: |
-          cp D:\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* D:\Paddle\Build\paddle_inference_c_install_dir\paddle\lib
-          ls D:\Paddle\Build
+          cp .\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* .\Build\paddle_inference_c_install_dir\paddle\lib
+          ls .\Paddle\Build
 
       - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
         with:
           name: c_${{ matrix.build_config.name }}
-          path: D:\Paddle\Build\paddle_inference_c_install_dir\*
+          path: .\Paddle\Build\paddle_inference_c_install_dir\*
 
       - name: Upload paddle_inference_install_dir
         uses: actions/upload-artifact@v4
         with:
           name: cpp_${{ matrix.build_config.name }}
-          path: D:\Paddle\Build\paddle_inference_install_dir\*
+          path: .\Paddle\Build\paddle_inference_install_dir\*
     
   # cu120-sm86-89:
   #   runs-on: windows-latest
