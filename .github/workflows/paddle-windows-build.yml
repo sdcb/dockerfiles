@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  PADDLE_VERSION: "2.6.1"
-  PADDLE_BRANCH: "release/2.6"
+  PADDLE_VERSION: "3.0.0"
+  PADDLE_BRANCH: "release/3.0"
 
 jobs:
   build-all:
