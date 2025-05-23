@@ -61,10 +61,9 @@ jobs:
           cd .\Paddle\Build
           ninja all
 
-      - name: Copy common* files
+      - name: Show build files
         run: |
-          cp .\Paddle\Build\paddle_inference_install_dir\paddle\lib\common* .\Build\paddle_inference_c_install_dir\paddle\lib
-          ls .\Paddle\Build
+          tree /f .\Paddle\Build
 
       - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
