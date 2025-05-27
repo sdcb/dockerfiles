@@ -35,8 +35,8 @@ jobs:
 
       - name: Configure with CMake
         run: |
-          mkdir -p ~/paddle-src/build
-          cd ~/paddle-src/build
+          mkdir -p ./paddle-src/build
+          cd ./paddle-src/build
           cmake .. -GNinja \
             ${{ matrix.cmake_flags }} \
             -DWITH_GPU=OFF \
@@ -47,27 +47,27 @@ jobs:
 
       - name: Build with Ninja
         run: |
-          cd ~/paddle-src/build
+          cd ./paddle-src/build
           ninja all
 
       - name: Compress paddle_inference_c_install_dir
         run: |
-          cd ~/paddle-src/build
+          cd ./paddle-src/build
           tar -czf paddle_inference_c_${{ matrix.name }}.tar.gz paddle_inference_c_install_dir/
 
       - name: Compress paddle_inference_install_dir
         run: |
-          cd ~/paddle-src/build
+          cd ./paddle-src/build
           tar -czf paddle_inference_cpp_${{ matrix.name }}.tar.gz paddle_inference_install_dir/
 
       - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
         with:
           name: c_${{ matrix.name }}
-          path: ~/paddle-src/build/paddle_inference_c_${{ matrix.name }}.tar.gz
+          path: ./paddle-src/build/paddle_inference_c_${{ matrix.name }}.tar.gz
 
       - name: Upload paddle_inference_install_dir
         uses: actions/upload-artifact@v4
         with:
           name: cpp_${{ matrix.name }}
-          path: ~/paddle-src/build/paddle_inference_cpp_${{ matrix.name }}.tar.gz
+          path: ./paddle-src/build/paddle_inference_cpp_${{ matrix.name }}.tar.gz
