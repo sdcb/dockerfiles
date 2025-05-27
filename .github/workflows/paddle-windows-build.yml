@@ -31,8 +31,8 @@ jobs:
         with:
           repository: PaddlePaddle/Paddle
           ref: ${{ env.PADDLE_BRANCH }}
-          path: Paddle
-          recursive: true
+          path: paddle-src
+          submodules: true
           fetch-depth: 1
 
       - uses: ilammy/msvc-dev-cmd@v1
@@ -41,39 +41,40 @@ jobs:
 
       - name: Configure with CMake
         run: |
-          mkdir ./Paddle/Build
-          mkdir ./Paddle/Build/paddle/phi/ops/yaml/inconsistent
-          mkdir ./Paddle/Build/paddle/phi/ops/yaml/legacy
-          cd ./Paddle/Build
+          mkdir ./paddle-src/build
+          # mkdir ./paddle-src/build/paddle/phi/ops/yaml/inconsistent
+          # mkdir ./paddle-src/build/paddle/phi/ops/yaml/legacy
 
-          cmake .. -GNinja \
-            ${{ matrix.cmake_flags }} \
-            -DWITH_GPU=OFF \
-            -DON_INFER=ON \
-            -DWITH_PYTHON=OFF \
-            -DWITH_ONNXRUNTIME=ON \
+          cd ./paddle-src/build
+
+          cmake .. -GNinja `
+            ${{ matrix.cmake_flags }} `
+            -DWITH_GPU=OFF `
+            -DON_INFER=ON `
+            -DWITH_PYTHON=OFF `
+            -DWITH_ONNXRUNTIME=ON `
             -DWITH_UNITY_BUILD=ON
 
       - name: Build with Ninja
         run: |
-          cd .\Paddle\Build
+          cd ./paddle-src/build
           ninja all
 
       - name: Show build files
         run: |
-          tree /f .\Paddle\Build
+          tree /f ./paddle-src/build
 
       - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
         with:
           name: c_${{ matrix.name }}
-          path: .\Paddle\Build\paddle_inference_c_install_dir\*
+          path: ./paddle-src/build/paddle_inference_c_install_dir/*
 
       - name: Upload paddle_inference_install_dir
         uses: actions/upload-artifact@v4
         with:
           name: cpp_${{ matrix.name }}
-          path: .\Paddle\Build\paddle_inference_install_dir\*
+          path: ./paddle-src/build/paddle_inference_install_dir/*
     
   # cu120-sm86-89:
   #   runs-on: windows-latest
