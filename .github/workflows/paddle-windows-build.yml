@@ -16,24 +16,15 @@ jobs:
     runs-on: windows-2022
     strategy:
       matrix:
-        build_config:
-          - name: openblas_noavx
-            AVX_FLAG: OFF
-            MKL_FLAG: OFF
-          - name: openblas
-            AVX_FLAG: ON
-            MKL_FLAG: OFF
-          - name: mkldnn
-            AVX_FLAG: ON
-            MKL_FLAG: ON
+        include:
+          - { name: openblas_noavx, cmake_flags: "-DWITH_AVX=OFF -DWITH_MKL=OFF" }
+          - { name: openblas,       cmake_flags: "-DWITH_AVX=ON  -DWITH_MKL=OFF" }
+          - { name: mkldnn,         cmake_flags: "-DWITH_AVX=ON  -DWITH_MKL=ON"  }
     steps:
       - name: Setup dependencies
         run: |
+          git config --global core.longpaths true
           pip3 install numpy protobuf wheel ninja
-
-      - uses: ilammy/msvc-dev-cmd@v1
-        with:
-          toolset: '14.29'
 
       - name: Checkout Paddle repo
         uses: actions/checkout@v4
@@ -41,16 +32,22 @@ jobs:
           repository: PaddlePaddle/Paddle
           ref: ${{ env.PADDLE_BRANCH }}
           path: Paddle
+          recursive: true
           fetch-depth: 1
 
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          toolset: '14.29'
+
       - name: Configure with CMake
-        shell: bash
         run: |
           mkdir ./Paddle/Build
+          mkdir ./Paddle/Build/paddle/phi/ops/yaml/inconsistent
+          mkdir ./Paddle/Build/paddle/phi/ops/yaml/legacy
           cd ./Paddle/Build
+
           cmake .. -GNinja \
-            -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} \
-            -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} \
+            ${{ matrix.cmake_flags }} \
             -DWITH_GPU=OFF \
             -DON_INFER=ON \
             -DWITH_PYTHON=OFF \
@@ -69,13 +66,13 @@ jobs:
       - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
         with:
-          name: c_${{ matrix.build_config.name }}
+          name: c_${{ matrix.name }}
           path: .\Paddle\Build\paddle_inference_c_install_dir\*
 
       - name: Upload paddle_inference_install_dir
         uses: actions/upload-artifact@v4
         with:
-          name: cpp_${{ matrix.build_config.name }}
+          name: cpp_${{ matrix.name }}
           path: .\Paddle\Build\paddle_inference_install_dir\*
     
   # cu120-sm86-89:
