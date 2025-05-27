@@ -47,8 +47,8 @@ jobs:
       - name: Configure with CMake
         shell: bash
         run: |
-          mkdir .\Paddle\Build
-          cd .\Paddle\Build
+          mkdir ./Paddle/Build
+          cd ./Paddle/Build
           cmake .. -GNinja \
             -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} \
             -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} \
