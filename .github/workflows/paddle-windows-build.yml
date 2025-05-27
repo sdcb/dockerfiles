@@ -23,7 +23,6 @@ jobs:
     steps:
       - name: Setup dependencies
         run: |
-          git config --global core.longpaths true
           pip3 install numpy protobuf wheel ninja
 
       - name: Checkout Paddle repo
@@ -32,7 +31,6 @@ jobs:
           repository: PaddlePaddle/Paddle
           ref: ${{ env.PADDLE_BRANCH }}
           path: paddle-src
-          submodules: true
           fetch-depth: 1
 
       - uses: ilammy/msvc-dev-cmd@v1
