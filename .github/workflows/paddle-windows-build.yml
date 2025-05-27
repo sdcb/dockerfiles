@@ -41,6 +41,7 @@ jobs:
           repository: PaddlePaddle/Paddle
           ref: ${{ env.PADDLE_BRANCH }}
           path: Paddle
+          submodules: true
           fetch-depth: 1
 
       - name: Configure with CMake
