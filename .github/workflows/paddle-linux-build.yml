@@ -16,33 +16,30 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        build_config:
-          - name: openblas_noavx
-            AVX_FLAG: OFF
-            MKL_FLAG: OFF
-          - name: openblas
-            AVX_FLAG: ON
-            MKL_FLAG: OFF
-          - name: mkldnn
-            AVX_FLAG: ON
-            MKL_FLAG: ON
+        include:
+          - { name: openblas_noavx, cmake_flags: "-DWITH_AVX=OFF -DWITH_MKL=OFF" }
+          - { name: openblas,       cmake_flags: "-DWITH_AVX=ON  -DWITH_MKL=OFF" }
+          - { name: mkldnn,         cmake_flags: "-DWITH_AVX=ON  -DWITH_MKL=ON"  }
     steps:
       - name: Setup dependencies
         run: |
           pip3 install numpy protobuf wheel ninja
 
-      - name: Clone Paddle repository
-        run: |
-          echo "Executing: git clone $PADDLE_BRANCH from: https://github.com/PaddlePaddle/Paddle"
-          git clone --depth 1 -b $PADDLE_BRANCH https://github.com/PaddlePaddle/Paddle ~/Paddle
+      - name: Checkout Paddle repo
+        uses: actions/checkout@v4
+        with:
+          repository: PaddlePaddle/Paddle
+          ref: ${{ env.PADDLE_BRANCH }}
+          path: paddle-src
+          fetch-depth: 1
 
       - name: Configure with CMake
         run: |
-          mkdir -p ~/Paddle/Build
-          cd ~/Paddle/Build
+          mkdir -p ~/paddle-src/build
+          cd ~/paddle-src/build
           cmake .. -GNinja \
-            -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} \
-            -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} \
+            -DWITH_AVX=${{ matrix.AVX_FLAG }} \
+            -DWITH_MKL=${{ matrix.MKL_FLAG }} \
             -DWITH_GPU=OFF \
             -DON_INFER=ON \
             -DWITH_PYTHON=OFF \
@@ -51,27 +48,27 @@ jobs:
 
       - name: Build with Ninja
         run: |
-          cd ~/Paddle/Build
+          cd ~/paddle-src/build
           ninja all
 
       - name: Compress paddle_inference_c_install_dir
         run: |
-          cd ~/Paddle/Build
-          tar -czf paddle_inference_c_${{ matrix.build_config.name }}.tar.gz paddle_inference_c_install_dir/
+          cd ~/paddle-src/build
+          tar -czf paddle_inference_c_${{ matrix.name }}.tar.gz paddle_inference_c_install_dir/
 
       - name: Compress paddle_inference_install_dir
         run: |
-          cd ~/Paddle/Build
-          tar -czf paddle_inference_cpp_${{ matrix.build_config.name }}.tar.gz paddle_inference_install_dir/
+          cd ~/paddle-src/build
+          tar -czf paddle_inference_cpp_${{ matrix.name }}.tar.gz paddle_inference_install_dir/
 
       - name: Upload paddle_inference_c_install_dir
         uses: actions/upload-artifact@v4
         with:
-          name: c_${{ matrix.build_config.name }}
-          path: ~/Paddle/Build/paddle_inference_c_${{ matrix.build_config.name }}.tar.gz
+          name: c_${{ matrix.name }}
+          path: ~/paddle-src/build/paddle_inference_c_${{ matrix.name }}.tar.gz
 
       - name: Upload paddle_inference_install_dir
         uses: actions/upload-artifact@v4
         with:
-          name: cpp_${{ matrix.build_config.name }}
-          path: ~/Paddle/Build/paddle_inference_cpp_${{ matrix.build_config.name }}.tar.gz
+          name: cpp_${{ matrix.name }}
+          path: ~/paddle-src/build/paddle_inference_cpp_${{ matrix.name }}.tar.gz
