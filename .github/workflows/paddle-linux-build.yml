@@ -38,7 +38,7 @@ jobs:
           mkdir -p ~/paddle-src/build
           cd ~/paddle-src/build
           cmake .. -GNinja \
-            ${{ matrix.cmake_flags }}
+            ${{ matrix.cmake_flags }} \
             -DWITH_GPU=OFF \
             -DON_INFER=ON \
             -DWITH_PYTHON=OFF \
