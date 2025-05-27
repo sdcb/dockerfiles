@@ -44,17 +44,17 @@ jobs:
           fetch-depth: 1
 
       - name: Configure with CMake
-        shell: cmd
+        shell: bash
         run: |
           mkdir .\Paddle\Build
           cd .\Paddle\Build
-          cmake .. -GNinja `
-            -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} `
-            -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} `
-            -DWITH_GPU=OFF `
-            -DON_INFER=ON `
-            -DWITH_PYTHON=OFF `
-            -DWITH_ONNXRUNTIME=ON `
+          cmake .. -GNinja \
+            -DWITH_AVX=${{ matrix.build_config.AVX_FLAG }} \
+            -DWITH_MKL=${{ matrix.build_config.MKL_FLAG }} \
+            -DWITH_GPU=OFF \
+            -DON_INFER=ON \
+            -DWITH_PYTHON=OFF \
+            -DWITH_ONNXRUNTIME=ON \
             -DWITH_UNITY_BUILD=ON
 
       - name: Build with Ninja
