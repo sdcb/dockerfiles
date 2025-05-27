@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  PADDLE_VERSION: "2.6.1"
-  PADDLE_BRANCH: "release/2.6"
+  PADDLE_VERSION: "3.0.0"
+  PADDLE_BRANCH: "v3.0.0"
 
 jobs:
   build-all:
@@ -38,8 +38,7 @@ jobs:
           mkdir -p ~/paddle-src/build
           cd ~/paddle-src/build
           cmake .. -GNinja \
-            -DWITH_AVX=${{ matrix.AVX_FLAG }} \
-            -DWITH_MKL=${{ matrix.MKL_FLAG }} \
+            ${{ matrix.cmake_flags }}
             -DWITH_GPU=OFF \
             -DON_INFER=ON \
             -DWITH_PYTHON=OFF \
