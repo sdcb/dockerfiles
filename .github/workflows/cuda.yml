@@ -17,7 +17,7 @@ jobs:
     - uses: Jimver/cuda-toolkit@master
       id: cuda-toolkit
       with:
-        linux-local-args: ["--toolkit"]
+        linux-local-args: '["--toolkit"]'
         log-file-suffix: '${{matrix.os}}.txt'
 
     - name: Show CUDA
