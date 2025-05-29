@@ -1,0 +1,32 @@
+name: cuda
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/cuda.yml
+  workflow_dispatch:
+
+jobs:
+  build-all:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: Jimver/cuda-toolkit@master
+      id: cuda-toolkit
+      with:
+        log-file-suffix: '${{matrix.os}}.txt'
+
+    - name: Show CUDA
+      run: |
+        echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+        echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
+        nvcc --version
+        nvidia-smi
+
+    - name: Show CUDA Artifacts
+      run: |
+        echo "CUDA artifacts:"
+        ls -lR ${{steps.cuda-toolkit.outputs.CUDA_PATH}}
