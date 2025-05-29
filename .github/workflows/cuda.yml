@@ -32,4 +32,4 @@ jobs:
       shell: bash
       run: |
         echo "CUDA artifacts:"
-        ls -lR ${{steps.cuda-toolkit.outputs.CUDA_PATH}}
+        ls -lR "${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
