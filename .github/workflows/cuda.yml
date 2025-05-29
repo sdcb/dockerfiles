@@ -19,7 +19,6 @@ jobs:
       with:
         method: network
         sub-packages: '["nvcc"]'
-        non-cuda-sub-packages: '["libcublas"]'
         log-file-suffix: '${{matrix.os}}.txt'
 
     - name: Show CUDA
