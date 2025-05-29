@@ -20,7 +20,7 @@ jobs:
         method: network
         # Windows sub-packages are kind of different, so we need to handle them separately
         # https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html
-        sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["nvcc"]' || '["nvcc", "cublas", "cublas-dev"]' }}
+        sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["nvcc"]' || '["nvcc", "cublas", "cublas_dev"]' }}
         non-cuda-sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["libcublas", "libcublas-dev"]' || '[]' }}
         log-file-suffix: '${{matrix.os}}.txt'
 
