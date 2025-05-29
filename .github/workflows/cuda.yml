@@ -18,6 +18,8 @@ jobs:
       id: cuda-toolkit
       with:
         method: network
+        sub-packages: '["nvcc", "compiler"]'
+        non-cuda-sub-packages: '["libcublas"]'
         log-file-suffix: '${{matrix.os}}.txt'
 
     - name: Show CUDA
@@ -27,6 +29,7 @@ jobs:
         nvcc --version
 
     - name: Show CUDA Artifacts
+      shell: bash
       run: |
         echo "CUDA artifacts:"
         ls -lR ${{steps.cuda-toolkit.outputs.CUDA_PATH}}
