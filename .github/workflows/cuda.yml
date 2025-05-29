@@ -18,8 +18,10 @@ jobs:
       id: cuda-toolkit
       with:
         method: network
-        sub-packages: '["nvcc"]'
-        non-cuda-sub-packages: '["libcublas", "libcublas-dev"]'
+        # Windows sub-packages are kind of different, so we need to handle them separately
+        # https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html
+        sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["nvcc"]' || '["nvcc", "cublas", "cublas-dev"]' }}
+        non-cuda-sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["libcublas", "libcublas-dev"]' || '' }}
         log-file-suffix: '${{matrix.os}}.txt'
 
     - name: Show CUDA
