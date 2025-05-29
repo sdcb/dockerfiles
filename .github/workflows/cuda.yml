@@ -18,7 +18,7 @@ jobs:
       id: cuda-toolkit
       with:
         method: network
-        cuda: 12.8
+        cuda: "12.8.1"
         # Windows sub-packages are kind of different, so we need to handle them separately
         # https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html
         sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["nvcc"]' || '["nvcc", "cublas", "cublas_dev", "cudart"]' }}
