@@ -18,8 +18,7 @@ jobs:
       id: cuda-toolkit
       with:
         method: network
-        sub-packages: '["nvcc"]'
-        non-cuda-sub-packages: '["libcublas"]'
+        sub-packages: '["nvcc", "cublas"]'
         log-file-suffix: '${{matrix.os}}.txt'
 
     - name: Show CUDA
