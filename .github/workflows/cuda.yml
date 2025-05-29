@@ -24,6 +24,16 @@ jobs:
         non-cuda-sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["libcublas", "libcublas-dev"]' || '[]' }}
         log-file-suffix: '${{matrix.os}}.txt'
 
+    - name: Install cuDNN
+      shell: bash
+      run: |
+        echo "Installing cuDNN..."
+        if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
+          apt install -y cudnn9-cuda-12
+        elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+          echo "todo..."
+        fi
+
     - name: Show CUDA
       run: |
         echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
