@@ -18,6 +18,7 @@ jobs:
       id: cuda-toolkit
       with:
         method: network
+        cuda: 12.8
         # Windows sub-packages are kind of different, so we need to handle them separately
         # https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html
         sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["nvcc"]' || '["nvcc", "cublas", "cublas_dev", "cudart"]' }}
@@ -29,7 +30,7 @@ jobs:
       run: |
         echo "Installing cuDNN..."
         if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
-          sudo apt install -y cudnn9-cuda-12
+          sudo apt install -y cudnn9-cuda-12-8
         elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
           echo "todo..."
         fi
