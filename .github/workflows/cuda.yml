@@ -30,7 +30,7 @@ jobs:
       run: |
         echo "Installing cuDNN..."
         if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
-          sudo apt install -y cudnn9-cuda-12-8
+          sudo apt install -y cudnn9-cuda-12
         elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
           echo "todo..."
         fi
