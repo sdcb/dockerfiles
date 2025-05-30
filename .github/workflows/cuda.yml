@@ -31,12 +31,12 @@ jobs:
         echo "Installing cuDNN..."
         if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
           wget --no-verbose https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-9.5.1.17_cuda12-archive.tar.xz -O cudnn.tar.xz
-          tar -xf cudnn.tar.xz --strip-components=1 -C cudnn
+          mkdir cudnn && tar -xf cudnn.tar.xz --strip-components=1 -C cudnn
 
           echo "::group:: cuDNN files"
           ls -lR cudnn
           echo "::endgroup::"
-          
+
           sudo cp cudnn/include/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/include/
           sudo cp cudnn/lib/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/lib64/
         elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
