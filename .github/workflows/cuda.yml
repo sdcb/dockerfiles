@@ -34,7 +34,7 @@ jobs:
           mkdir cudnn && tar -xf cudnn.tar.xz --strip-components=1 -C cudnn
         } elseif ("${{ matrix.os }}" -eq "windows-2022") {
           Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/windows-x86_64/cudnn-windows-x86_64-9.5.1.17_cuda12-archive.zip -OutFile cudnn.zip
-          Expand-Archive -Path cudnn.zip -DestinationPath cudnn
+          mkdir cudnn && tar -xf cudnn.zip --strip-components=1 -C cudnn
         }
 
         echo "::group:: cuDNN files"
