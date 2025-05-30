@@ -29,28 +29,28 @@ jobs:
       shell: pwsh
       run: |
         echo "Downloading cuDNN..."
-        if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
+        if ("${{ matrix.os }}" -eq "ubuntu-22.04") {
           Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-9.5.1.17_cuda12-archive.tar.xz -OutFile cudnn.tar.xz
           mkdir cudnn && tar -xf cudnn.tar.xz --strip-components=1 -C cudnn
-        elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+        } elseif ("${{ matrix.os }}" -eq "windows-2022") {
           Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/windows-x86_64/cudnn-windows-x86_64-9.5.1.17_cuda12-archive.zip -OutFile cudnn.zip
           Expand-Archive -Path cudnn.zip -DestinationPath cudnn
-        fi
+        }
 
         echo "::group:: cuDNN files"
-        ls -lR cudnn
+        Get-ChildItem -Recurse cudnn
         echo "::endgroup::"
 
     - name: Install cuDNN
-      shell: bash
+      shell: pwsh
       run: |
         echo "Installing cuDNN..."
-        if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
+        if ("${{ matrix.os }}" -eq "ubuntu-22.04") {
           sudo cp cudnn/include/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/include/
           sudo cp cudnn/lib/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/lib64/
-        elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+        } elseif ("${{ matrix.os }}" -eq "windows-2022") {
           cp -r cudnn ${{steps.cuda-toolkit.outputs.CUDA_PATH}}
-        fi
+        }
 
     - name: Show CUDA
       run: |
