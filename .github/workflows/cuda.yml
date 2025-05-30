@@ -49,7 +49,7 @@ jobs:
           sudo cp cudnn/include/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/include/
           sudo cp cudnn/lib/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/lib64/
         } elseif ("${{ matrix.os }}" -eq "windows-2022") {
-          cp -r cudnn "${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+          cp -r cudnn/. "${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
         }
 
     - name: Show CUDA
