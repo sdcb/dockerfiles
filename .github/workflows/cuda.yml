@@ -25,6 +25,12 @@ jobs:
         non-cuda-sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["libcublas", "libcublas-dev"]' || '[]' }}
         log-file-suffix: '${{matrix.os}}.txt'
 
+    - name: Show CUDA(no cudnn)
+      run: |
+        echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+        echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
+        nvcc --version
+
     - name: Install cuDNN
       shell: bash
       run: |
