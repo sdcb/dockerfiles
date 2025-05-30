@@ -25,22 +25,31 @@ jobs:
         non-cuda-sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["libcublas", "libcublas-dev"]' || '[]' }}
         log-file-suffix: '${{matrix.os}}.txt'
 
+    - name: Download cuDNN
+      shell: pwsh
+      run: |
+        echo "Downloading cuDNN..."
+        if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
+          Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-9.5.1.17_cuda12-archive.tar.xz -OutFile cudnn.tar.xz
+          mkdir cudnn && tar -xf cudnn.tar.xz --strip-components=1 -C cudnn
+        elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+          Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/windows-x86_64/cudnn-windows-x86_64-9.5.1.17_cuda12-archive.zip -OutFile cudnn.zip
+          Expand-Archive -Path cudnn.zip -DestinationPath cudnn
+        fi
+
+        echo "::group:: cuDNN files"
+        ls -lR cudnn
+        echo "::endgroup::"
+
     - name: Install cuDNN
       shell: bash
       run: |
         echo "Installing cuDNN..."
         if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
-          wget --no-verbose https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-9.5.1.17_cuda12-archive.tar.xz -O cudnn.tar.xz
-          mkdir cudnn && tar -xf cudnn.tar.xz --strip-components=1 -C cudnn
-
-          echo "::group:: cuDNN files"
-          ls -lR cudnn
-          echo "::endgroup::"
-
           sudo cp cudnn/include/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/include/
           sudo cp cudnn/lib/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/lib64/
         elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
-          echo "todo..."
+          cp -r cudnn ${{steps.cuda-toolkit.outputs.CUDA_PATH}}
         fi
 
     - name: Show CUDA
