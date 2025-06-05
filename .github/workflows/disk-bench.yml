@@ -28,6 +28,10 @@ jobs:
           - windows-2025
     runs-on: ${{ matrix.runs-on }}
     steps:
+      - name: Show All Disk Free Spaces
+        run: |
+          Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{Name='FreeSpace(GB)';Expression={[math]::round($_.Free/1GB,2)}}, @{Name='UsedSpace(GB)';Expression={[math]::round($_.Used/1GB,2)}}, @{Name='TotalSize(GB)';Expression={[math]::round($_.Used/1GB + $_.Free/1GB,2)}} | Format-Table -AutoSize
+
       - name: Setup diskspd
         run: |
           $client = new-object System.Net.WebClient
