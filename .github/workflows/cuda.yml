@@ -11,46 +11,52 @@ jobs:
   build-all:
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-2022]
+        include:
+        - os: ubuntu-22.04
+          cuda: 12.6.3
+          cudnn: 9.5.1.17
+        - os: windows-2022
+          cuda: 12.6.3
+          cudnn: 9.5.1.17
     runs-on: ${{ matrix.os }}
     steps:
     - uses: Jimver/cuda-toolkit@master
+      if: ${{ matrix.cuda != '' }}
       id: cuda-toolkit
       with:
         method: network
-        cuda: "12.8.1"
+        cuda: ${{ matrix.cuda }}
         # Windows sub-packages are kind of different, so we need to handle them separately
         # https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html
-        sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["nvcc"]' || '["nvcc", "cublas", "cublas_dev", "cudart"]' }}
-        non-cuda-sub-packages: ${{ matrix.os == 'ubuntu-22.04' && '["libcublas", "libcublas-dev"]' || '[]' }}
+        sub-packages: ${{ matrix.os == 'ubuntu-22.04' && 
+          '["nvcc", "profiler-api"]' || 
+          '["nvcc", "cublas", "cublas_dev", "cudart", "cufft", "cufft_dev", "curand", "curand_dev", "cusparse", "cusparse_dev", "cusolver", "cusolver_dev", "nvrtc", "nvrtc_dev", "cuda_profiler_api"]' 
+          }}
+        non-cuda-sub-packages: ${{ matrix.os == 'ubuntu-22.04' && 
+          '["libcublas", "libcublas-dev", "libcufft", "libcufft-dev", "libcurand", "libcurand-dev", "libcusparse", "libcusparse-dev", "libcusolver", "libcusolver-dev", "libnvrtc", "libnvrtc-dev"]' || 
+          '[]' }}
         log-file-suffix: '${{matrix.os}}.txt'
-
+    
     - name: Download cuDNN
+      if: ${{ matrix.cudnn != '' }}
       shell: pwsh
       run: |
-        echo "Downloading cuDNN..."
-        if ("${{ matrix.os }}" -eq "ubuntu-22.04") {
-          Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-9.5.1.17_cuda12-archive.tar.xz -OutFile cudnn.tar.xz
-          mkdir cudnn && tar -xf cudnn.tar.xz --strip-components=1 -C cudnn
-        } elseif ("${{ matrix.os }}" -eq "windows-2022") {
-          Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/windows-x86_64/cudnn-windows-x86_64-9.5.1.17_cuda12-archive.zip -OutFile cudnn.zip
-          mkdir cudnn && tar -xf cudnn.zip --strip-components=1 -C cudnn
+        $cudaMajor = '${{ matrix.cuda }}'.Split('.')[0]
+        echo "Downloading cuDNN for CUDA $cudaMajor and cuDNN ${{ matrix.cudnn }}..."
+        if ("${{ runner.os }}" -eq "Linux") {
+          Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-${{ matrix.cudnn }}_cuda$cudaMajor-archive.tar.xz -OutFile cudnn.tar.xz
+          mkdir cudnn && tar -xf cudnn.tar.xz --strip-components=1 -C cudn  
+          sudo cp cudnn/include/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/include/
+          sudo cp cudnn/lib/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/lib64/
+        } elseif ("${{ runner.os }}" -eq "Windows") {
+          Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/windows-x86_64/cudnn-windows-x86_64-${{ matrix.cudnn }}_cuda$cudaMajor-archive.zip -OutFile cudnn.zip
+          mkdir cudnn && tar -xf cudnn.zip --strip-components=1 -C cudn  
+          cp -Recurse -Force cudnn\* "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}"
         }
-
+    
         echo "::group:: cuDNN files"
         Get-ChildItem -Recurse cudnn
         echo "::endgroup::"
-
-    - name: Install cuDNN
-      shell: pwsh
-      run: |
-        echo "Installing cuDNN..."
-        if ("${{ matrix.os }}" -eq "ubuntu-22.04") {
-          sudo cp cudnn/include/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/include/
-          sudo cp cudnn/lib/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/lib64/
-        } elseif ("${{ matrix.os }}" -eq "windows-2022") {
-          cp -Recurse -Force cudnn\* "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}"
-        }
 
     - name: Show CUDA
       run: |
