@@ -20,11 +20,13 @@ jobs:
           echo "Current time: $(date)"
 
       - name: Preparing to wait (Job ${{ matrix.job_id }})
-        run: echo "Current time before waiting: $(date)"
+        run: |
+          echo "Current time before waiting: $(date)"
         shell: bash
 
       - name: Wait for 30 seconds (Job ${{ matrix.job_id }})
-        run: sleep 30 # 在 Windows 上可以使用 timeout /t 30 /nobreak
+        run: |
+          sleep 30 # 在 Windows 上可以使用 timeout /t 30 /nobreak
         shell: bash # 确保在 Windows Runner 上也能使用 bash 命令
 
       - name: Finish Job ${{ matrix.job_id }}
