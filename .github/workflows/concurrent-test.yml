@@ -1,0 +1,33 @@
+name: Concurrency Test - 40 Jobs (30s Wait)
+
+on:
+  workflow_dispatch: # 允许手动触发工作流
+
+jobs:
+  # 使用生成器策略来创建40个 Job
+  build_and_wait:
+    runs-on: ubuntu-latest # 也可以使用 windows-latest，但 Ubuntu Runner 更常见且通常限制相同
+    strategy:
+      matrix:
+        job_id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                   11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                   21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+                   31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+    steps:
+      - name: Start Job ${{ matrix.job_id }}
+        run: |
+          echo "Starting Job ${{ matrix.job_id }}"
+          echo "Current time: $(date)"
+
+      - name: Preparing to wait (Job ${{ matrix.job_id }})
+        run: echo "Current time before waiting: $(date)"
+        shell: bash
+
+      - name: Wait for 30 seconds (Job ${{ matrix.job_id }})
+        run: sleep 30 # 在 Windows 上可以使用 timeout /t 30 /nobreak
+        shell: bash # 确保在 Windows Runner 上也能使用 bash 命令
+
+      - name: Finish Job ${{ matrix.job_id }}
+        run: |
+          echo "Finished Job ${{ matrix.job_id }}"
+          echo "Current time: $(date)"
