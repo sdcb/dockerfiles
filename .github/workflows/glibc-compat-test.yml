@@ -51,7 +51,7 @@ jobs:
 
     - name: Build shared library (MUST BE PIC)
       run: |
-        gcc -fPIC -shared add.c -o libadd.so -Wl,-soname,libadd.so
+        gcc -shared add.c -o libadd.so -Wl,-soname,libadd.so
         echo '--- ldd libadd.so ---'
         ldd libadd.so
 
