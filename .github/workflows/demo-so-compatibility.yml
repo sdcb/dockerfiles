@@ -40,6 +40,9 @@ jobs:
     - name: Build libadd.so
       run: gcc -fPIC -shared add.c -o libadd.so
 
+    - name: ldd libadd.so
+      run: ldd libadd.so
+
     # ── ③ 编译/运行测试程序（确保 22.04 自己能用） ────────────────────────────
     - name: Build test binary
       run: gcc main.c -L. -ladd -Wl,-rpath='$ORIGIN' -o test
@@ -70,6 +73,9 @@ jobs:
       with:
         name: libadd
         path: lib                  # 保存到 ./lib
+
+    - name: ldd lib/libadd.so
+      run: ldd lib/libadd.so
 
     # ── ② 编写新的主程序、指向头文件/库并编译 ────────────────────────────────
     - name: Build executable linking to 22.04 .so
