@@ -6,16 +6,15 @@ on:
       - main
     paths:
       - .github/workflows/demo-so-compatibility.yml
-
+################################################################################
+# Job-1: 在 Ubuntu 22.04 构建并初步测试
+################################################################################
 jobs:
-################################################################################
-# 1) 在 ubuntu-22.04 上构建并测试
-################################################################################
   build-ubuntu-2204:
     runs-on: ubuntu-22.04
 
     steps:
-    # ── ① 写入简单示例源码 ──────────────────────────────────────────────────────
+    # ① 生成示例源码
     - name: Generate example sources
       run: |
         cat > add.h <<'EOF'
@@ -23,68 +22,80 @@ jobs:
         int add(int a, int b);
         EOF
 
+        # 让库内部使用 printf -> 产生对 glibc 的依赖
         cat > add.c <<'EOF'
-        int add(int a, int b) { return a + b; }
+        #include <stdio.h>
+        int add(int a, int b)
+        {
+          /* 使用 glibc 的 printf；只为产生依赖 */
+          printf("[libadd] %d + %d = %d\n", a, b, a + b);
+          return a + b;
+        }
         EOF
 
         cat > main.c <<'EOF'
         #include <stdio.h>
         #include "add.h"
-        int main() {
-          printf("2 + 3 = %d\n", add(2, 3));
+        int main(void)
+        {
+          int result = add(2, 3);
+          printf("[main] result = %d\n", result);
           return 0;
         }
         EOF
 
-    # ── ② 编译共享库 ────────────────────────────────────────────────────────────
+    # ② 编译共享库
     - name: Build libadd.so
-      run: gcc -fPIC -shared add.c -o libadd.so
+      run: |
+        gcc -fPIC -shared add.c -o libadd.so
+        echo "---- ldd libadd.so ----"
+        ldd libadd.so
 
-    - name: ldd libadd.so
-      run: ldd libadd.so
+    # ③ 编译并运行测试程序（确保 22.04 可用）
+    - name: Build & run test program
+      run: |
+        gcc main.c -L. -ladd -Wl,-rpath='$ORIGIN' -o test
+        echo "---- Run on 22.04 ----"
+        ./test
 
-    # ── ③ 编译/运行测试程序（确保 22.04 自己能用） ────────────────────────────
-    - name: Build test binary
-      run: gcc main.c -L. -ladd -Wl,-rpath='$ORIGIN' -o test
-
-    - name: Run test on 22.04
-      run: ./test
-
-    # ── ④ 上传 artifacts ───────────────────────────────────────────────────────
+    # ④ 上传 artifact
     - name: Upload libadd.so & headers
       uses: actions/upload-artifact@v4
       with:
-        name: libadd               # artifact 名称
+        name: libadd
         path: |
           libadd.so
           add.h
 
 ################################################################################
-# 2) 在 ubuntu-24.04 下载并再次验证
+# Job-2: 在 Ubuntu 24.04 下载并重测
 ################################################################################
   test-ubuntu-2404:
     needs: build-ubuntu-2204
     runs-on: ubuntu-24.04
 
     steps:
-    # ── ① 下载 22.04 生成的 so ────────────────────────────────────────────────
     - name: Download artifact
       uses: actions/download-artifact@v4
       with:
         name: libadd
-        path: lib                  # 保存到 ./lib
+        path: lib
 
-    - name: ldd lib/libadd.so
-      run: ldd lib/libadd.so
+    - name: Show ldd result of 22.04-built .so
+      run: |
+        echo "---- ldd lib/libadd.so (on 24.04) ----"
+        ldd lib/libadd.so
 
-    # ── ② 编写新的主程序、指向头文件/库并编译 ────────────────────────────────
-    - name: Build executable linking to 22.04 .so
+    # 生成新的主程序并链接到 22.04 生成的 so
+    - name: Build executable on 24.04
       run: |
         cat > main.c <<'EOF'
         #include <stdio.h>
         #include "add.h"
-        int main() {
-          printf("10 + 20 = %d\n", add(10, 20));
+        int main(void)
+        {
+          int r = add(10, 20);
+          printf("[24.04 main] 10 + 20 = %d\n", r);
           return 0;
         }
         EOF
@@ -92,7 +103,7 @@ jobs:
         gcc main.c -Ilib -Llib -ladd \
             -Wl,-rpath='$ORIGIN/lib' -o test
 
-    # ── ③ 运行验证 ────────────────────────────────────────────────────────────
-    - name: Run test on 24.04 with 22.04-built so
+    - name: Run test program on 24.04
       run: |
+        echo "---- Run on 24.04 ----"
         LD_LIBRARY_PATH=./lib ./test
