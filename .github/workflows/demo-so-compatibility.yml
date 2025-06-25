@@ -47,7 +47,7 @@ jobs:
     # ② 编译共享库
     - name: Build libadd.so
       run: |
-        gcc -fPIC -shared add.c -o libadd.so
+        gcc -shared add.c -o libadd.so
         echo "---- ldd libadd.so ----"
         ldd libadd.so
 
