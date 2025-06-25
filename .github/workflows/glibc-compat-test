@@ -1,0 +1,106 @@
+name: glibc-compat-test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/glibc-compat-test
+
+jobs:
+###############################################################################
+# 1) Ubuntu-22.04 上构建 libadd.so（带 -fPIC）并测试，再上传
+###############################################################################
+  build-ubuntu-2204:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Generate sources
+      run: |
+        cat > add.h <<'EOF'
+        #pragma once
+        int add(int a, int b);
+        void set_offset(int v);
+        EOF
+
+        # 这里故意使用一个“库内全局变量”制造必须的绝对重定位
+        cat > add.c <<'EOF'
+        #include <stdio.h>
+        int g_offset = 7;                      /* 全局数据符号            */
+
+        void set_offset(int v) { g_offset = v; }
+
+        int add(int a, int b)
+        {
+            int r = a + b + g_offset;          /* 访问全局变量 -> 需要绝对重定位 */
+            printf("[libadd.so] %d + %d + %d = %d\n",
+                   a, b, g_offset, r);
+            return r;
+        }
+        EOF
+
+        cat > main.c <<'EOF'
+        #include <stdio.h>
+        #include "add.h"
+        int main(void)
+        {
+            set_offset(5);
+            printf("[main 22.04] result = %d\n", add(2, 3));
+            return 0;
+        }
+        EOF
+
+    - name: Build shared library (MUST BE PIC)
+      run: |
+        gcc -fPIC -shared add.c -o libadd.so -Wl,-soname,libadd.so
+        echo '--- ldd libadd.so ---'
+        ldd libadd.so
+
+    - name: Build and run test program on 22.04
+      run: |
+        gcc main.c -L. -ladd -Wl,-rpath,'$ORIGIN' -o test22
+        ./test22
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: libadd
+        path: |
+          libadd.so
+          add.h
+
+###############################################################################
+# 2) Ubuntu-24.04 上下载 22.04 的 .so，再次编译/运行
+###############################################################################
+  test-ubuntu-2404:
+    needs: build-ubuntu-2204
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: libadd
+        path: lib
+
+    - name: Show ldd result on 24.04
+      run: ldd lib/libadd.so
+
+    - name: Build new test program on 24.04
+      run: |
+        cat > main.c <<'EOF'
+        #include <stdio.h>
+        #include "add.h"
+        int main(void)
+        {
+            set_offset(10);
+            printf("[main 24.04] result = %d\n", add(10, 20));
+            return 0;
+        }
+        EOF
+
+        gcc main.c -Ilib -Llib -ladd \
+            -Wl,-rpath,'$ORIGIN/lib' \
+            -o test24
+
+    - name: Run test with 22.04-built so (24.04)
+      run: |
+        LD_LIBRARY_PATH=./lib ./test24
