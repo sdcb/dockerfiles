@@ -1,0 +1,92 @@
+name: glibc-compat-test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/demo-so-compatibility.yml
+
+jobs:
+################################################################################
+# 1) 在 ubuntu-22.04 上构建并测试
+################################################################################
+  build-22.04:
+    runs-on: ubuntu-22.04
+
+    steps:
+    # ── ① 写入简单示例源码 ──────────────────────────────────────────────────────
+    - name: Generate example sources
+      run: |
+        cat > add.h <<'EOF'
+        #pragma once
+        int add(int a, int b);
+        EOF
+
+        cat > add.c <<'EOF'
+        int add(int a, int b) { return a + b; }
+        EOF
+
+        cat > main.c <<'EOF'
+        #include <stdio.h>
+        #include "add.h"
+        int main() {
+          printf("2 + 3 = %d\n", add(2, 3));
+          return 0;
+        }
+        EOF
+
+    # ── ② 编译共享库 ────────────────────────────────────────────────────────────
+    - name: Build libadd.so
+      run: gcc -fPIC -shared add.c -o libadd.so
+
+    # ── ③ 编译/运行测试程序（确保 22.04 自己能用） ────────────────────────────
+    - name: Build test binary
+      run: gcc main.c -L. -ladd -Wl,-rpath='$ORIGIN' -o test
+
+    - name: Run test on 22.04
+      run: ./test
+
+    # ── ④ 上传 artifacts ───────────────────────────────────────────────────────
+    - name: Upload libadd.so & headers
+      uses: actions/upload-artifact@v4
+      with:
+        name: libadd               # artifact 名称
+        path: |
+          libadd.so
+          add.h
+
+################################################################################
+# 2) 在 ubuntu-24.04 下载并再次验证
+################################################################################
+  test-24.04:
+    needs: build-22.04
+    runs-on: ubuntu-24.04
+
+    steps:
+    # ── ① 下载 22.04 生成的 so ────────────────────────────────────────────────
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: libadd
+        path: lib                  # 保存到 ./lib
+
+    # ── ② 编写新的主程序、指向头文件/库并编译 ────────────────────────────────
+    - name: Build executable linking to 22.04 .so
+      run: |
+        cat > main.c <<'EOF'
+        #include <stdio.h>
+        #include "add.h"
+        int main() {
+          printf("10 + 20 = %d\n", add(10, 20));
+          return 0;
+        }
+        EOF
+
+        gcc main.c -Ilib -Llib -ladd \
+            -Wl,-rpath='$ORIGIN/lib' -o test
+
+    # ── ③ 运行验证 ────────────────────────────────────────────────────────────
+    - name: Run test on 24.04 with 22.04-built so
+      run: |
+        LD_LIBRARY_PATH=./lib ./test
