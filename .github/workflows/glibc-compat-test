@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/glibc-compat-test
+      - .github/workflows/glibc-compat-test.yml
 
 jobs:
 ###############################################################################
