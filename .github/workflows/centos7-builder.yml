@@ -17,12 +17,12 @@ jobs:
       run: |
         cat <<EOF > Dockerfile
         FROM oraclelinux:7
-        RUN yum -y install oracle-softwarecollection-release-el7 oracle-epel-release-el7 \
-            && yum-config-manager --enable ol7_software_collections ol7_developer_epel
+        RUN yum install -y oraclelinux-release-el7 oracle-softwarecollection-release-el7 \
+            && yum-config-manager --enable ol7_optional_latest ol7_developer_epel
         RUN yum install -y devtoolset-11 make nasm cmake3 && \
             ln -s /usr/bin/cmake3 /usr/bin/cmake
-        ENV PATH=/opt/rh/gcc-toolset-11/root/usr/bin:$PATH \
-            LD_LIBRARY_PATH=/opt/rh/gcc-toolset-11/root/usr/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+        ENV PATH=/opt/rh/dev-toolset-11/root/usr/bin:$PATH \
+            LD_LIBRARY_PATH=/opt/rh/dev-toolset-11/root/usr/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
         EOF
 
     - name: Show Dockerfile
