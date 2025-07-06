@@ -21,7 +21,7 @@ jobs:
             && yum-config-manager --enable ol7_optional_latest ol7_developer_epel ol7_software_collections
         RUN yum install -y devtoolset-11 make nasm cmake3 rh-python38 && \
             ln -s /usr/bin/cmake3 /usr/bin/cmake
-        ENV PATH=/opt/rh/devtoolset-11/root/usr/bin:$PATH \
+        ENV PATH=/opt/rh/rh-python38/root/usr/bin:/opt/rh/devtoolset-11/root/usr/bin:$PATH \
             LD_LIBRARY_PATH=/opt/rh/devtoolset-11/root/usr/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
         EOF
 
