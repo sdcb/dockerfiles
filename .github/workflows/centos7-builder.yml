@@ -17,8 +17,13 @@ jobs:
       run: |
         cat <<EOF > Dockerfile
         FROM oraclelinux:7
-        RUN yum install -y oracle-epel-release-el7 && yum-config-manager --enable ol7_developer_epel
-        RUN yum install -y gcc cmake3 gcc-c++ make nasm && ln -s /usr/bin/cmake3 /usr/bin/cmake
+        RUN yum install -y oracle-epel-release-el7 && \
+          yum-config-manager --enable ol7_developer_epel && \
+          yum-config-manager --enable ol7_software_collections
+        RUN yum install -y gcc-toolset-11-gcc gcc-toolset-11-gcc-c++ make nasm cmake3 &&
+            ln -s /usr/bin/cmake3 /usr/bin/cmake
+        ENV PATH=/opt/rh/gcc-toolset-11/root/usr/bin:$PATH \
+            LD_LIBRARY_PATH=/opt/rh/gcc-toolset-11/root/usr/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
         EOF
 
     - name: Show Dockerfile
@@ -30,4 +35,4 @@ jobs:
 
     - name: Test Docker image
       run: |
-        docker run --rm centos7-builder sh -c "gcc --version && cmake --version && make --version && nasm --version"
+        docker run --rm centos7-builder sh -c "gcc --version && cmake --version && make --version && python --version"
