@@ -10,7 +10,7 @@ on:
 
 jobs:
   hello_world_job:
-    runs-on: self-hosted
+    runs-on: windows-2025
     steps:
       - name: info
         run: |
