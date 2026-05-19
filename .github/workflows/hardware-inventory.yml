@@ -35,8 +35,12 @@ jobs:
             runs-on: macos-14
           - image-name: macos-15
             runs-on: macos-15
+          - image-name: macos-26
+            runs-on: macos-26
           - image-name: macos-15-intel
             runs-on: macos-15-intel
+          - image-name: macos-26-intel
+            runs-on: macos-26-intel
     runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Collect hardware info on Windows
