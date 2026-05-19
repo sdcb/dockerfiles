@@ -1,0 +1,71 @@
+name: cuda
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/cuda.yml
+  workflow_dispatch:
+
+jobs:
+  build-all:
+    strategy:
+      matrix:
+        include:
+        - os: ubuntu-22.04
+          cuda: 12.6.3
+          cudnn: 9.5.1.17
+        - os: windows-2022
+          cuda: 12.6.3
+          cudnn: 9.5.1.17
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: Jimver/cuda-toolkit@master
+      if: ${{ matrix.cuda != '' }}
+      id: cuda-toolkit
+      with:
+        method: network
+        cuda: ${{ matrix.cuda }}
+        # Windows sub-packages are kind of different, so we need to handle them separately
+        # https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html
+        sub-packages: ${{ matrix.os == 'ubuntu-22.04' && 
+          '["nvcc", "profiler-api"]' || 
+          '["nvcc", "cublas", "cublas_dev", "cudart", "cufft", "cufft_dev", "curand", "curand_dev", "cusparse", "cusparse_dev", "cusolver", "cusolver_dev", "nvrtc", "nvrtc_dev", "cuda_profiler_api"]' 
+          }}
+        non-cuda-sub-packages: ${{ matrix.os == 'ubuntu-22.04' && 
+          '["libcublas", "libcublas-dev", "libcufft", "libcufft-dev", "libcurand", "libcurand-dev", "libcusparse", "libcusparse-dev", "libcusolver", "libcusolver-dev", "libnvrtc", "libnvrtc-dev"]' || 
+          '[]' }}
+        log-file-suffix: '${{matrix.os}}.txt'
+    
+    - name: Download cuDNN
+      if: ${{ matrix.cudnn != '' }}
+      shell: pwsh
+      run: |
+        $cudaMajor = '${{ matrix.cuda }}'.Split('.')[0]
+        echo "Downloading cuDNN for CUDA $cudaMajor and cuDNN ${{ matrix.cudnn }}..."
+        if ("${{ runner.os }}" -eq "Linux") {
+          Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-${{ matrix.cudnn }}_cuda$cudaMajor-archive.tar.xz -OutFile cudnn.tar.xz
+          mkdir cudnn && tar -xf cudnn.tar.xz --strip-components=1 -C cudn  
+          sudo cp cudnn/include/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/include/
+          sudo cp cudnn/lib/* ${{steps.cuda-toolkit.outputs.CUDA_PATH}}/lib64/
+        } elseif ("${{ runner.os }}" -eq "Windows") {
+          Invoke-WebRequest -Uri https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/windows-x86_64/cudnn-windows-x86_64-${{ matrix.cudnn }}_cuda$cudaMajor-archive.zip -OutFile cudnn.zip
+          mkdir cudnn && tar -xf cudnn.zip --strip-components=1 -C cudn  
+          cp -Recurse -Force cudnn\* "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}"
+        }
+    
+        echo "::group:: cuDNN files"
+        Get-ChildItem -Recurse cudnn
+        echo "::endgroup::"
+
+    - name: Show CUDA
+      run: |
+        echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+        echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
+        nvcc --version
+
+    - name: Show CUDA Artifacts
+      shell: bash
+      run: |
+        echo "CUDA artifacts:"
+        ls -lR "${{steps.cuda-toolkit.outputs.CUDA_PATH}}"

@@ -1,0 +1,37 @@
+name: CentOS 7 Builder
+on:
+  push: 
+    branches:
+      - main
+    paths:
+      - .github/workflows/centos7-builder.yml
+  schedule:
+    - cron: "0 5 1 * *" # 5:00 on the first day of each month
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Write Dockerfile
+      run: |
+        cat <<EOF > Dockerfile
+        FROM oraclelinux:7
+        RUN yum install -y oraclelinux-release-el7 oracle-softwarecollection-release-el7 oracle-epel-release-el7 \
+            && yum-config-manager --enable ol7_optional_latest ol7_developer_epel ol7_software_collections
+        RUN yum install -y devtoolset-11 make nasm cmake3 rh-python38 && \
+            ln -s /usr/bin/cmake3 /usr/bin/cmake
+        ENV PATH=/opt/rh/rh-python38/root/usr/bin:/opt/rh/devtoolset-11/root/usr/bin:$PATH \
+            LD_LIBRARY_PATH=/opt/rh/devtoolset-11/root/usr/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+        EOF
+
+    - name: Show Dockerfile
+      run: cat Dockerfile
+
+    - name: Build Docker image
+      run: |
+        docker build -t centos7-builder .
+
+    - name: Test Docker image
+      run: |
+        docker run --rm centos7-builder sh -c "gcc --version && cmake --version && make --version && python --version"
