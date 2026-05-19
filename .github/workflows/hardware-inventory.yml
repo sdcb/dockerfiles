@@ -1,0 +1,140 @@
+name: Runner Hardware Inventory
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/hardware-inventory.yml'
+  workflow_dispatch:
+
+jobs:
+  hardware_inventory:
+    name: Hardware Inventory (${{ matrix.image-name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image-name: ubuntu-slim
+            runs-on: ubuntu-slim
+          - image-name: ubuntu-22.04
+            runs-on: ubuntu-22.04
+          - image-name: ubuntu-24.04
+            runs-on: ubuntu-24.04
+          - image-name: ubuntu-22.04-arm
+            runs-on: ubuntu-22.04-arm
+          - image-name: ubuntu-24.04-arm
+            runs-on: ubuntu-24.04-arm
+          - image-name: windows-2022
+            runs-on: windows-2022
+          - image-name: windows-2025
+            runs-on: windows-2025
+          - image-name: windows-11-arm
+            runs-on: windows-11-arm
+          - image-name: macos-14
+            runs-on: macos-14
+          - image-name: macos-15
+            runs-on: macos-15
+          - image-name: macos-15-intel
+            runs-on: macos-15-intel
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - name: Collect hardware info on Windows
+        if: runner.os == 'Windows'
+        run: |
+          $processor = Get-CimInstance Win32_Processor | Select-Object -First 1 Name, MaxClockSpeed, CurrentClockSpeed, NumberOfCores, NumberOfLogicalProcessors
+          $computerSystem = Get-CimInstance Win32_ComputerSystem
+          $totalMemoryGiB = [math]::Round($computerSystem.TotalPhysicalMemory / 1GB, 2)
+
+          Write-Host "Runner image: ${{ matrix.image-name }}"
+          Write-Host "CPU model: $($processor.Name)"
+          Write-Host "CPU max frequency (MHz): $($processor.MaxClockSpeed)"
+          Write-Host "CPU current frequency (MHz): $($processor.CurrentClockSpeed)"
+          Write-Host "CPU cores/logical processors: $($processor.NumberOfCores)/$($processor.NumberOfLogicalProcessors)"
+          Write-Host "Memory (GiB): $totalMemoryGiB"
+
+          @"
+          ## Hardware Summary
+
+          | Item | Value |
+          | --- | --- |
+          | Runner image | ${{ matrix.image-name }} |
+          | CPU model | $($processor.Name) |
+          | CPU max frequency (MHz) | $($processor.MaxClockSpeed) |
+          | CPU current frequency (MHz) | $($processor.CurrentClockSpeed) |
+          | Memory (GiB) | $totalMemoryGiB |
+          "@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - name: Collect hardware info on Linux
+        if: runner.os == 'Linux'
+        run: |
+          cpu_model="$(awk -F: '/model name/ {sub(/^[ \t]+/, "", $2); print $2; exit}' /proc/cpuinfo)"
+          if [ -z "$cpu_model" ]; then
+            cpu_model="$(awk -F: '/Hardware/ {sub(/^[ \t]+/, "", $2); print $2; exit}' /proc/cpuinfo)"
+          fi
+
+          cpu_frequency_mhz="$(awk -F: '/cpu MHz/ {sub(/^[ \t]+/, "", $2); print $2; exit}' /proc/cpuinfo)"
+          if [ -z "$cpu_frequency_mhz" ] && command -v lscpu >/dev/null 2>&1; then
+            cpu_frequency_mhz="$(lscpu | awk -F: '/CPU max MHz/ {sub(/^[ \t]+/, "", $2); print $2; exit}')"
+          fi
+          if [ -z "$cpu_frequency_mhz" ] && [ -f /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq ]; then
+            cpu_frequency_mhz="$(awk '{printf "%.2f", $1 / 1000}' /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)"
+          fi
+          if [ -z "$cpu_frequency_mhz" ]; then
+            cpu_frequency_mhz="N/A"
+          fi
+
+          memory_gib="$(awk '/MemTotal:/ {printf "%.2f", $2 / 1024 / 1024; exit}' /proc/meminfo)"
+
+          echo "Runner image: ${{ matrix.image-name }}"
+          echo "CPU model: $cpu_model"
+          echo "CPU frequency (MHz): $cpu_frequency_mhz"
+          echo "Memory (GiB): $memory_gib"
+
+          {
+            echo "## Hardware Summary"
+            echo
+            echo "| Item | Value |"
+            echo "| --- | --- |"
+            echo "| Runner image | ${{ matrix.image-name }} |"
+            echo "| CPU model | $cpu_model |"
+            echo "| CPU frequency (MHz) | $cpu_frequency_mhz |"
+            echo "| Memory (GiB) | $memory_gib |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Collect hardware info on macOS
+        if: runner.os == 'macOS'
+        run: |
+          cpu_model="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || true)"
+          if [ -z "$cpu_model" ]; then
+            cpu_model="$(system_profiler SPHardwareDataType | awk -F: '/Chip|Processor Name/ {sub(/^[ \t]+/, "", $2); print $2; exit}')"
+          fi
+
+          cpu_frequency_raw="$(sysctl -n hw.cpufrequency_max 2>/dev/null || sysctl -n hw.cpufrequency 2>/dev/null || true)"
+          if [ -n "$cpu_frequency_raw" ]; then
+            cpu_frequency_mhz="$(awk -v hz="$cpu_frequency_raw" 'BEGIN {printf "%.2f", hz / 1000000}')"
+          else
+            cpu_frequency_mhz="$(system_profiler SPHardwareDataType | awk -F: '/Processor Speed/ {sub(/^[ \t]+/, "", $2); print $2; exit}')"
+          fi
+          if [ -z "$cpu_frequency_mhz" ]; then
+            cpu_frequency_mhz="N/A"
+          fi
+
+          memory_bytes="$(sysctl -n hw.memsize)"
+          memory_gib="$(awk -v bytes="$memory_bytes" 'BEGIN {printf "%.2f", bytes / 1024 / 1024 / 1024}')"
+
+          echo "Runner image: ${{ matrix.image-name }}"
+          echo "CPU model: $cpu_model"
+          echo "CPU frequency (MHz): $cpu_frequency_mhz"
+          echo "Memory (GiB): $memory_gib"
+
+          {
+            echo "## Hardware Summary"
+            echo
+            echo "| Item | Value |"
+            echo "| --- | --- |"
+            echo "| Runner image | ${{ matrix.image-name }} |"
+            echo "| CPU model | $cpu_model |"
+            echo "| CPU frequency (MHz) | $cpu_frequency_mhz |"
+            echo "| Memory (GiB) | $memory_gib |"
+          } >> "$GITHUB_STEP_SUMMARY"
